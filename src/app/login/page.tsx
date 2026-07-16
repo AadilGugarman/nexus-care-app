@@ -1,0 +1,172 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { AuthService } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { LogIn, Loader2 } from 'lucide-react';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const result = await AuthService.signIn({ email, password });
+
+      if (result.success) {
+        // Redirect to home page
+        router.push('/');
+      } else {
+        setError(result.error || 'Failed to sign in');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+      <div className="bg-slate-800 rounded-lg border border-slate-700 w-full max-w-md p-8 shadow-xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 mb-4">
+            <LogIn className="w-8 h-8 text-blue-500" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-slate-400">
+            Sign in to MR Route Planner
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email */}
+          <div>
+            <Label htmlFor="email" className="text-slate-300">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@example.com"
+              className="mt-1.5 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+              disabled={loading}
+              autoComplete="email"
+              autoFocus
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <Label htmlFor="password" className="text-slate-300">
+                Password
+              </Label>
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-400 hover:text-blue-300"
+              >
+                Forgot?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+              disabled={loading}
+              autoComplete="current-password"
+            />
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign In
+              </>
+            )}
+          </Button>
+        </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-700"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-slate-800 text-slate-400">
+              Don&apos;t have an account?
+            </span>
+          </div>
+        </div>
+
+        {/* Sign Up Link */}
+        <div className="text-center">
+          <Link href="/signup">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+            >
+              Create Account
+            </Button>
+          </Link>
+        </div>
+
+        {/* Continue Without Login */}
+        <div className="mt-6 text-center">
+          <Link
+            href="/"
+            className="text-sm text-slate-400 hover:text-slate-300"
+          >
+            Continue without signing in →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
