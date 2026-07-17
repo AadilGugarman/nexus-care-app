@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Users, Upload, AlertCircle, ClipboardCheck } from 'lucide-react';
+import { Home, Users, Upload, AlertCircle, ClipboardCheck, BarChart3 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,6 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="bg-slate-800 border-b border-slate-700">
         <div className="flex overflow-x-auto">
           <NavLink href="/admin" icon={Home}>Dashboard</NavLink>
+          <NavLink href="/admin/analytics" icon={BarChart3}>Analytics</NavLink>
           <NavLink href="/admin/reviews" icon={ClipboardCheck}>Reviews</NavLink>
           <NavLink href="/admin/doctors" icon={Users}>Doctors</NavLink>
           <NavLink href="/admin/import" icon={Upload}>Import</NavLink>

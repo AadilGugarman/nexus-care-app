@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { DoctorsService, RoutesService, VisitsService } from '@/lib/supabase/services';
+import { DoctorsService, RoutesService, VisitsService, DirectoryService } from '@/lib/supabase/services';
 import { getRequestStatistics } from '@/lib/supabase/services/doctor-requests.service';
 import type { RequestStatistics } from '@/lib/types/doctor-requests.types';
-import { Users, MapPin, Route as RouteIcon, Activity, TrendingUp, ClipboardCheck, AlertCircle } from 'lucide-react';
+import { Users, MapPin, Route as RouteIcon, Activity, TrendingUp, ClipboardCheck, AlertCircle, Eye, Globe } from 'lucide-react';
 
 interface DashboardStats {
   totalDoctors: number;
@@ -20,6 +20,16 @@ interface DashboardStats {
   }>;
   doctorsByLocation: Record<string, number>;
   requestStats: RequestStatistics | null;
+  directoryStats: {
+    publicDoctors: number;
+    directoryViews: number;
+    profileViews: number;
+    mostViewed: Array<{
+      doctor_id: number;
+      doctor_name: string;
+      view_count: number;
+    }>;
+  } | null;
 }
 
 export default function AdminDashboard() {
@@ -33,13 +43,18 @@ export default function AdminDashboard() {
   async function loadStats() {
     setLoading(true);
     try {
-      const [doctors, routes, visits, locations, requestStats] = await Promise.all([
+      const [doctors, routes, visits, locations, requestStats, visibilityStats, mostViewed] = await Promise.all([
         DoctorsService.getAllDoctors(),
         RoutesService.getAllRoutes(),
         VisitsService.getAllVisits(),
         DoctorsService.getLocations(),
         getRequestStatistics().catch(() => null), // Don't fail if request stats fail
+        DirectoryService.getDoctorVisibilityStats().catch(() => null),
+        DirectoryService.getMostViewedDoctors(3).catch(() => []),
       ]);
+
+      // Get directory analytics
+      const directoryAnalytics = await DirectoryService.getDirectoryAnalytics(30).catch(() => null);
 
       // Count doctors by location
       const doctorsByLocation: Record<string, number> = {};
@@ -66,6 +81,12 @@ export default function AdminDashboard() {
         recentDoctors,
         doctorsByLocation,
         requestStats,
+        directoryStats: visibilityStats && directoryAnalytics ? {
+          publicDoctors: visibilityStats.public_visible,
+          directoryViews: directoryAnalytics.total_views,
+          profileViews: directoryAnalytics.profile_views,
+          mostViewed: mostViewed,
+        } : null,
       });
     } catch (err) {
       console.error('Failed to load stats:', err);
@@ -158,6 +179,65 @@ export default function AdminDashboard() {
             </div>
           </div>
         </Link>
+      )}
+
+      {/* Public Directory Stats */}
+      {stats.directoryStats && (
+        <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <Globe className="w-6 h-6 text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-white">Public Directory</h3>
+              <p className="text-sm text-slate-400">Last 30 days statistics</p>
+            </div>
+            <Link
+              href="/directory"
+              target="_blank"
+              className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+            >
+              View Directory →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{stats.directoryStats.publicDoctors}</div>
+              <div className="text-xs text-slate-400">Public Doctors</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{stats.directoryStats.directoryViews}</div>
+              <div className="text-xs text-slate-400">Directory Views</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{stats.directoryStats.profileViews}</div>
+              <div className="text-xs text-slate-400">Profile Views</div>
+            </div>
+          </div>
+
+          {stats.directoryStats.mostViewed.length > 0 && (
+            <div className="pt-4 border-t border-blue-500/30">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Most Viewed Doctors
+              </div>
+              <div className="space-y-2">
+                {stats.directoryStats.mostViewed.map((doctor) => (
+                  <div
+                    key={doctor.doctor_id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50"
+                  >
+                    <span className="text-sm text-white truncate">{doctor.doctor_name}</span>
+                    <div className="flex items-center gap-1 text-xs text-slate-400">
+                      <Eye className="w-3 h-3" />
+                      <span>{doctor.view_count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Two Column Layout */}

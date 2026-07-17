@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DoctorsService } from '@/lib/supabase/services';
+import { DoctorsService, DirectoryService } from '@/lib/supabase/services';
 import type { DoctorRow } from '@/lib/supabase/database.types';
-import { Search, Filter, Eye, Edit2, Trash2, X } from 'lucide-react';
+import { Search, Filter, Eye, Edit2, Trash2, X, Globe, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -92,6 +92,22 @@ export default function DoctorsManagement() {
     } catch (err) {
       console.error('Failed to delete:', err);
       toast.error('Failed to delete doctor');
+    }
+  }
+
+  async function toggleVisibility(doctor: DoctorRow) {
+    const newVisibility = !doctor.public_visible;
+    try {
+      await DirectoryService.updateDoctorVisibility(doctor.id, newVisibility);
+      toast.success(
+        newVisibility 
+          ? 'Doctor is now visible in public directory' 
+          : 'Doctor is now hidden from public directory'
+      );
+      loadDoctors();
+    } catch (err) {
+      console.error('Failed to update visibility:', err);
+      toast.error('Failed to update visibility');
     }
   }
 
@@ -233,9 +249,23 @@ export default function DoctorsManagement() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 dark:text-white truncate">
-                    {doctor.doctor_name}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-slate-900 dark:text-white truncate">
+                      {doctor.doctor_name}
+                    </h3>
+                    {doctor.public_visible && doctor.is_active && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                        <Globe className="w-3 h-3" />
+                        Public
+                      </span>
+                    )}
+                    {!doctor.public_visible && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-400">
+                        <EyeOff className="w-3 h-3" />
+                        Hidden
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-600 dark:text-slate-400">
                     <span>📍 {doctor.location}</span>
                     {doctor.speciality && <span>🩺 {doctor.speciality}</span>}
@@ -244,6 +274,17 @@ export default function DoctorsManagement() {
                 </div>
                 
                 <div className="flex gap-1">
+                  <button
+                    onClick={() => toggleVisibility(doctor)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      doctor.public_visible
+                        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
+                        : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                    title={doctor.public_visible ? 'Hide from public directory' : 'Show in public directory'}
+                  >
+                    {doctor.public_visible ? <Globe className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
                   <button
                     onClick={() => setViewDoctor(doctor)}
                     className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
@@ -287,6 +328,10 @@ export default function DoctorsManagement() {
               {viewDoctor.mobile && <DetailRow label="Mobile" value={viewDoctor.mobile} />}
               {viewDoctor.address && <DetailRow label="Address" value={viewDoctor.address} />}
               {viewDoctor.notes && <DetailRow label="Notes" value={viewDoctor.notes} />}
+              <DetailRow 
+                label="Public Visibility" 
+                value={viewDoctor.public_visible ? 'Visible in public directory' : 'Hidden from public directory'} 
+              />
               <DetailRow 
                 label="Created" 
                 value={new Date(viewDoctor.created_at).toLocaleDateString('en-IN', {
@@ -349,6 +394,7 @@ function EditDoctorForm({
     hospital: doctor.hospital || '',
     mobile: doctor.mobile || '',
     notes: doctor.notes || '',
+    public_visible: doctor.public_visible,
   });
   const [saving, setSaving] = useState(false);
 
@@ -436,6 +482,24 @@ function EditDoctorForm({
           className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white"
           rows={3}
         />
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="public_visible"
+            checked={formData.public_visible}
+            onChange={(e) => setFormData({ ...formData, public_visible: e.target.checked })}
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          />
+          <Label htmlFor="public_visible" className="cursor-pointer">
+            Show in public directory
+          </Label>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ml-6">
+          When enabled, this doctor will appear in the public directory at /directory
+        </p>
       </div>
 
       <div className="flex gap-3 pt-4">

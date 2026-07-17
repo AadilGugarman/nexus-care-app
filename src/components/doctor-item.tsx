@@ -1,12 +1,13 @@
 'use client';
 
-import { Pencil, Calendar, Trash2, GripVertical, Check, CheckCircle2, Circle } from 'lucide-react';
+import { Pencil, Calendar, Trash2, GripVertical, Check, CheckCircle2, Circle, Edit3, PowerOff } from 'lucide-react';
 import type { Doctor, DayKey } from '@/lib/types';
 import { DAY_LABELS } from '@/lib/types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { getDoctorVisitInfo, useStore } from '@/lib/store';
+import { useAuth } from '@/lib/auth';
 
 interface DoctorItemProps {
   doctor: Doctor;
@@ -15,6 +16,8 @@ interface DoctorItemProps {
   onEdit: () => void;
   onOpenDetails?: () => void;
   onDelete?: () => void;
+  onSuggestEdit?: () => void;
+  onRequestInactive?: () => void;
   index?: number;
   isRouteCompleted?: boolean;
 }
@@ -26,12 +29,18 @@ export function DoctorItem({
   onEdit,
   onOpenDetails,
   onDelete,
+  onSuggestEdit,
+  onRequestInactive,
   index,
   isRouteCompleted,
 }: DoctorItemProps) {
   const { markDoctorVisited, resetDoctorVisit } = useStore();
+  const { role } = useAuth();
   const visitInfo = getDoctorVisitInfo(doctor);
   const isVisited = visitInfo.isVisited;
+
+  const isAdmin = role === 'admin';
+  const isMR = role === 'mr';
 
   async function toggleVisited() {
     try {
@@ -112,16 +121,48 @@ export function DoctorItem({
         >
           <Calendar className="h-4 w-4" />
         </button>
-        <button
-          type="button"
-          onClick={onEdit}
-          className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-          aria-label="Edit doctor"
-          title="Edit"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        {onDelete && (
+        
+        {/* Admin: Direct Edit */}
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+            aria-label="Edit doctor"
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+        
+        {/* MR: Suggest Edit */}
+        {isMR && onSuggestEdit && (
+          <button
+            type="button"
+            onClick={onSuggestEdit}
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            aria-label="Suggest edit"
+            title="Suggest Edit"
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
+        )}
+        
+        {/* Public: Basic Edit (opens request form) */}
+        {!isAdmin && !isMR && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+            aria-label="Suggest changes"
+            title="Suggest Changes"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+        
+        {/* Admin: Direct Delete */}
+        {isAdmin && onDelete && (
           <button
             type="button"
             onClick={onDelete}
@@ -130,6 +171,19 @@ export function DoctorItem({
             title="Delete"
           >
             <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+        
+        {/* MR: Request Inactive */}
+        {isMR && onRequestInactive && (
+          <button
+            type="button"
+            onClick={onRequestInactive}
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+            aria-label="Request inactive"
+            title="Request Inactive"
+          >
+            <PowerOff className="h-4 w-4" />
           </button>
         )}
       </div>

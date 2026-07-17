@@ -17,6 +17,7 @@ A comprehensive medical representative (MR) route planning and doctor management
 - ✅ **Visit Tracking** - Mark visits as completed, track history
 - 📊 **Dashboard** - Overview of routes, visits, and statistics
 - 📝 **Request System** - Submit new doctors, suggest edits, request status changes
+- 🔒 **Data Isolation** - Own routes, visits, and assignments (multi-tenant)
 - 📱 **Mobile-First** - Optimized for on-the-go use
 
 ### For Administrators
@@ -24,8 +25,17 @@ A comprehensive medical representative (MR) route planning and doctor management
 - 📥 **Bulk Import** - Import doctors via CSV/JSON
 - 🔍 **Data Quality** - Find and fix data issues
 - ✅ **Request Review** - Approve/reject MR submissions
-- 📊 **Analytics Dashboard** - System-wide statistics
+- 📊 **Analytics Dashboard** - Multi-MR system statistics and insights
+- 👁️ **Cross-MR Visibility** - View all routes, visits, and user activity
 - 🔐 **User Management** - Role-based access control
+- 🌐 **Public Directory Control** - Toggle doctor visibility in public directory
+
+### For Public Users (No Login Required)
+- 🔍 **Doctor Directory** - Browse and search for doctors
+- 🗺️ **Location-based Search** - Find doctors by city/area
+- 🩺 **Speciality Filtering** - Filter by medical speciality
+- 📞 **Direct Contact** - Call doctors directly from profile
+- 🧭 **Directions** - Get directions via Google Maps
 
 ---
 
@@ -126,10 +136,11 @@ nexus-care-app/
 ├── src/
 │   ├── app/                       # Next.js app router
 │   │   ├── admin/                 # Admin panel routes
+│   │   │   ├── analytics/         # Multi-MR analytics (Phase 5)
 │   │   │   ├── doctors/           # Doctor management
 │   │   │   ├── import/            # Bulk import
 │   │   │   ├── quality/           # Data quality
-│   │   │   └── reviews/           # Request review
+│   │   │   └── reviews/           # Request review (Phase 4)
 │   │   ├── login/                 # Login page
 │   │   ├── signup/                # Signup page
 │   │   └── access-denied/         # Access denied page
@@ -229,6 +240,9 @@ Comprehensive documentation is available in the [`/docs`](docs/) directory:
 - [🔐 Authentication Setup](docs/architecture/AUTHENTICATION_IMPLEMENTATION_PLAN.md)
 - [✅ Phase 3: RBAC Complete](docs/phase-guides/PHASE_3_RBAC_COMPLETE.md)
 - [📝 Phase 4: Requests Complete](docs/phase-guides/PHASE_4_COMPLETE.md)
+- [🎯 Phase 4: Integration Complete](docs/phase-guides/PHASE_4_INTEGRATION_COMPLETE.md)
+- [👥 Phase 5: Multi-MR Complete](docs/phase-guides/PHASE_5_MULTI_MR_IMPLEMENTATION.md)
+- [🌐 Phase 6: Public Directory Complete](docs/phase-guides/PHASE_6_PUBLIC_DIRECTORY_IMPLEMENTATION.md)
 - [🧪 Testing Guides](docs/phase-guides/)
 
 ---
@@ -248,6 +262,8 @@ npx tsc --noEmit
 ### Testing Guides
 - [Phase 3 Testing](docs/phase-guides/PHASE_3_TESTING_GUIDE.md) - RBAC testing
 - [Phase 4 Testing](docs/phase-guides/PHASE_4_TESTING_GUIDE.md) - Request workflow testing
+- [Phase 5 Testing](docs/phase-guides/PHASE_5_TESTING_GUIDE.md) - Multi-MR data isolation testing
+- [Phase 6 Testing](docs/phase-guides/PHASE_6_TESTING_GUIDE.md) - Public directory testing
 
 ---
 
@@ -335,20 +351,31 @@ See [`/docs/troubleshooting`](docs/troubleshooting/) for more solutions.
 - [x] Core MR application (routes, visits, doctors)
 - [x] Admin panel with bulk import
 - [x] Authentication system (Supabase Auth)
-- [x] Role-based access control
-- [x] Request/approval workflow
+- [x] Role-based access control (RBAC)
+- [x] Request/approval workflow (Phase 4)
+- [x] MR request form UI integration (Phase 4)
+- [x] Multi-MR data ownership (Phase 5)
+- [x] Admin analytics dashboard (Phase 5)
+- [x] Public doctor directory (Phase 6)
+- [x] Public directory analytics (Phase 6)
 - [x] Mobile-first responsive UI
 - [x] Dark theme
 - [x] Build optimization
 
 ### 🚧 Future Enhancements
 
+- [ ] Enable Row Level Security (RLS)
 - [ ] Email notifications for request approvals
-- [ ] MR request form UI integration
+- [ ] Real-time analytics updates
 - [ ] Request history view for MRs
 - [ ] Batch approve/reject operations
-- [ ] Analytics dashboard
+- [ ] Advanced analytics (charts, trends)
 - [ ] Export to PDF/Excel
+- [ ] Doctor usage heat maps
+- [ ] Enhanced public directory search (fuzzy matching, autocomplete)
+- [ ] Doctor profile photos and rich profiles
+- [ ] Interactive maps with GPS coordinates
+- [ ] Online appointment booking system
 
 ---
 

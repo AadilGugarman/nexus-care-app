@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AuthService } from '@/lib/auth';
+import { AuthService, useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,10 +11,27 @@ import { LogIn, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, role, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const hasRedirected = useRef(false);
+
+  // Redirect if already logged in (only once)
+  useEffect(() => {
+    if (!authLoading && user && role && !hasRedirected.current) {
+      hasRedirected.current = true;
+      console.log('Already logged in, redirecting...', role);
+      
+      // Use window.location for hard redirect
+      if (role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/';
+      }
+    }
+  }, [user, role, authLoading]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,9 +47,34 @@ export default function LoginPage() {
     try {
       const result = await AuthService.signIn({ email, password });
 
-      if (result.success) {
-        // Redirect to home page
-        router.push('/');
+      if (result.success && result.userId && !hasRedirected.current) {
+        hasRedirected.current = true;
+        
+        // Import supabase client dynamically
+        const { supabase } = await import('@/lib/supabase/client');
+        
+        // Get user profile to determine role
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', result.userId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          router.replace('/');
+          return;
+        }
+
+        // Redirect based on role
+        const userRole = (data as any)?.role;
+        if (userRole === 'admin') {
+          console.log('Redirecting admin to /admin');
+          window.location.href = '/admin';
+        } else {
+          console.log('Redirecting to home');
+          window.location.href = '/';
+        }
       } else {
         setError(result.error || 'Failed to sign in');
       }
@@ -42,6 +84,18 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Show loading while checking auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
+          <p className="text-slate-400">Checking authentication...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { ChevronRight, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStore, getDoctorDays, doctorMatchesQuery } from '@/lib/store';
+import { useAuth } from '@/lib/auth';
 import type { DayKey, Doctor } from '@/lib/types';
 import { DoctorItem } from '@/components/doctor-item';
 import { SearchBar } from '@/components/search-bar';
@@ -14,16 +15,21 @@ import { useDebouncedValue } from '@/lib/hooks';
 
 interface LocationsProps {
   onEditDoctor: (d: Doctor) => void;
+  onSuggestEdit?: (d: Doctor) => void;
+  onRequestInactive?: (d: Doctor) => void;
 }
 
-function LocationsImpl({ onEditDoctor }: LocationsProps) {
+function LocationsImpl({ onEditDoctor, onSuggestEdit, onRequestInactive }: LocationsProps) {
   const { state, setDayAssignments, updateDoctor, deleteDoctor } = useStore();
+  const { role } = useAuth();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 80);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [dayModalDoctor, setDayModalDoctor] = useState<Doctor | null>(null);
   const [detailsDoctor, setDetailsDoctor] = useState<Doctor | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+
+  const isAdmin = role === 'admin';
 
   const locationGroups = useMemo(() => {
     const map = new Map<string, Doctor[]>();
@@ -93,7 +99,10 @@ function LocationsImpl({ onEditDoctor }: LocationsProps) {
               assignedDays={getDoctorDays(state, d.id)}
               onOpenDayModal={() => setDayModalDoctor(d)}
               onEdit={() => onEditDoctor(d)}
+              onSuggestEdit={onSuggestEdit ? () => onSuggestEdit(d) : undefined}
+              onRequestInactive={onRequestInactive ? () => onRequestInactive(d) : undefined}
               onOpenDetails={() => setDetailsDoctor(d)}
+              onDelete={isAdmin ? () => handleDelete(d.id) : undefined}
             />
           ))}
           {results.length === 0 && (
@@ -175,8 +184,10 @@ function LocationsImpl({ onEditDoctor }: LocationsProps) {
                       assignedDays={getDoctorDays(state, d.id)}
                       onOpenDayModal={() => setDayModalDoctor(d)}
                       onEdit={() => onEditDoctor(d)}
+                      onSuggestEdit={onSuggestEdit ? () => onSuggestEdit(d) : undefined}
+                      onRequestInactive={onRequestInactive ? () => onRequestInactive(d) : undefined}
                       onOpenDetails={() => setDetailsDoctor(d)}
-                      onDelete={() => handleDelete(d.id)}
+                      onDelete={isAdmin ? () => handleDelete(d.id) : undefined}
                     />
                   ))}
                 </div>

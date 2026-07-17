@@ -1,6 +1,7 @@
 'use client';
 
-import { CalendarDays, MapPin, Phone, Route as RouteIcon, Stethoscope, GraduationCap, Building2, Home, Timer, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CalendarDays, MapPin, Phone, Route as RouteIcon, Stethoscope, GraduationCap, Building2, Home, Timer, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useStore, getDoctorDays, getDoctorRouteNames, getDoctorVisitInfo, formatShortDate, getVisitStatusLabel } from '@/lib/store';
+import { useAuth } from '@/lib/auth';
+import { supabase } from '@/lib/supabase/client';
 import type { Doctor } from '@/lib/types';
 import { DAY_LABELS } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -19,8 +22,93 @@ interface DoctorDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface PendingRequest {
+  id: number;
+  type: 'creation' | 'change' | 'status';
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  change_reason?: string;
+  reason?: string;
+}
+
 export function DoctorDetailsDialog({ doctor, open, onOpenChange }: DoctorDetailsDialogProps) {
   const { state, markDoctorVisited, resetDoctorVisit } = useStore();
+  const { user } = useAuth();
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
+  // Fetch pending requests for this doctor by current user
+  useEffect(() => {
+    if (!doctor || !user || !open) {
+      setPendingRequests([]);
+      return;
+    }
+
+    async function fetchPendingRequests() {
+      if (!doctor || !user) return; // Additional null check for TypeScript
+      
+      try {
+        setLoadingRequests(true);
+
+        // Query all three request types
+        const [changeRequests, statusRequests] = await Promise.all([
+          (supabase as any)
+            .from('doctor_change_requests')
+            .select('id, status, created_at, change_reason')
+            .eq('doctor_id', doctor.id)
+            .eq('requested_by', user.id)
+            .in('status', ['pending', 'approved', 'rejected'])
+            .order('created_at', { ascending: false })
+            .limit(5),
+          (supabase as any)
+            .from('doctor_status_requests')
+            .select('id, status, created_at, reason, request_type')
+            .eq('doctor_id', doctor.id)
+            .eq('requested_by', user.id)
+            .in('status', ['pending', 'approved', 'rejected'])
+            .order('created_at', { ascending: false })
+            .limit(5),
+        ]);
+
+        const requests: PendingRequest[] = [];
+
+        if (changeRequests.data) {
+          requests.push(
+            ...changeRequests.data.map((r: any) => ({
+              id: r.id,
+              type: 'change' as const,
+              status: r.status,
+              created_at: r.created_at,
+              change_reason: r.change_reason,
+            }))
+          );
+        }
+
+        if (statusRequests.data) {
+          requests.push(
+            ...statusRequests.data.map((r: any) => ({
+              id: r.id,
+              type: 'status' as const,
+              status: r.status,
+              created_at: r.created_at,
+              reason: r.reason,
+            }))
+          );
+        }
+
+        // Sort by date
+        requests.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        setPendingRequests(requests);
+      } catch (error) {
+        console.error('Error fetching pending requests:', error);
+      } finally {
+        setLoadingRequests(false);
+      }
+    }
+
+    fetchPendingRequests();
+  }, [doctor, user, open]);
 
   if (!doctor) return null;
 
@@ -137,6 +225,55 @@ export function DoctorDetailsDialog({ doctor, open, onOpenChange }: DoctorDetail
               <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">Not assigned</div>
             )}
           </div>
+
+          {/* Pending Requests Section - Only for logged in users */}
+          {user && pendingRequests.length > 0 && (
+            <div className="rounded-lg border border-blue-200 dark:border-blue-700 px-3 py-3 bg-blue-50 dark:bg-blue-500/10">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <div className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                  Your Pending Requests
+                </div>
+              </div>
+              <div className="space-y-2">
+                {pendingRequests.map((request) => (
+                  <div
+                    key={`${request.type}-${request.id}`}
+                    className="flex items-start gap-2 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-2 bg-white dark:bg-slate-800"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-50">
+                          {request.type === 'change' && 'Edit Request'}
+                          {request.type === 'status' && 'Status Change Request'}
+                        </span>
+                        <span
+                          className={cn(
+                            'px-1.5 py-0.5 rounded text-[10px] font-bold',
+                            request.status === 'pending' && 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300',
+                            request.status === 'approved' && 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300',
+                            request.status === 'rejected' && 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300'
+                          )}
+                        >
+                          {request.status}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        {new Date(request.created_at).toLocaleDateString()} at{' '}
+                        {new Date(request.created_at).toLocaleTimeString()}
+                      </div>
+                    </div>
+                    {request.status === 'pending' && (
+                      <AlertCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    )}
+                    {request.status === 'approved' && (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-700 px-4 py-3 safe-bottom shrink-0 bg-white dark:bg-slate-900">

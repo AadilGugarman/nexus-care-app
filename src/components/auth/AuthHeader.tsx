@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import Link from 'next/link';
 import { User, LogIn, UserPlus, Crown, Briefcase, Loader2 } from 'lucide-react';
 import { LogoutButton } from './LogoutButton';
+import { NotificationBell } from '../NotificationBell';
 
 interface AuthHeaderProps {
   variant?: 'default' | 'compact';
@@ -76,6 +77,7 @@ export function AuthHeader({ variant = 'default' }: AuthHeaderProps) {
   if (variant === 'compact') {
     return (
       <div className="flex items-center gap-2">
+        <NotificationBell />
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-800/50">
           <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
             <User className="w-3.5 h-3.5 text-blue-500" />
@@ -122,6 +124,7 @@ export function AuthHeader({ variant = 'default' }: AuthHeaderProps) {
         </div>
         <div className="text-xs text-slate-400 truncate">{user.email}</div>
       </div>
+      <NotificationBell />
       <LogoutButton variant="ghost" size="sm" showText={false} />
     </div>
   );

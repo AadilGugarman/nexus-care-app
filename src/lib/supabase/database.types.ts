@@ -83,6 +83,7 @@ export interface DoctorRow {
   mobile: string | null;
   notes: string | null;
   is_active: boolean; // Added in Phase 4
+  public_visible: boolean; // Added in Phase 6
   created_at: string;
   updated_at: string;
 }
@@ -108,6 +109,8 @@ export interface DoctorUpdate {
   hospital?: string | null;
   mobile?: string | null;
   notes?: string | null;
+  is_active?: boolean; // Added in Phase 4
+  public_visible?: boolean; // Added in Phase 6
 }
 
 // User Route

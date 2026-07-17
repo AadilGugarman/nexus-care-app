@@ -12,6 +12,8 @@ import { useDebouncedValue } from '@/lib/hooks';
 
 interface DaysProps {
   onEditDoctor: (d: Doctor) => void;
+  onSuggestEdit?: (d: Doctor) => void;
+  onRequestInactive?: (d: Doctor) => void;
 }
 
 function DetailDoctorRow({
@@ -72,7 +74,7 @@ function DetailDoctorRow({
   );
 }
 
-function DaysImpl(_props: DaysProps) {
+function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive }: DaysProps) {
   const { state } = useStore();
   const [activeDay, setActiveDay] = useState<DayKey>(() => {
     const jsDay = new Date().getDay();
@@ -227,11 +229,17 @@ function DaysImpl(_props: DaysProps) {
               </div>
             ) : (
               detailDoctors.map((doctor) => (
-                <DetailDoctorRow
+                <button
                   key={doctor.id}
-                  doctor={doctor}
-                  onOpenProfile={() => setProfileDoctor(doctor)}
-                />
+                  type="button"
+                  onClick={() => setProfileDoctor(doctor)}
+                  className="w-full"
+                >
+                  <DetailDoctorRow
+                    doctor={doctor}
+                    onOpenProfile={() => setProfileDoctor(doctor)}
+                  />
+                </button>
               ))
             )}
           </div>
