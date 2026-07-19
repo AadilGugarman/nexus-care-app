@@ -8,6 +8,47 @@
   --color-foreground: #0f172a;
 }
 
+:root,
+:root[data-font-size="default"] {
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+}
+
+:root[data-font-size="small"] {
+  --text-xs: 0.72rem;
+  --text-sm: 0.825rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.05rem;
+  --text-xl: 1.18rem;
+  --text-2xl: 1.4rem;
+  --text-3xl: 1.72rem;
+}
+
+:root[data-font-size="large"] {
+  --text-xs: 0.8rem;
+  --text-sm: 0.94rem;
+  --text-base: 1.06rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.34rem;
+  --text-2xl: 1.62rem;
+  --text-3xl: 2rem;
+}
+
+:root[data-font-size="extra-large"] {
+  --text-xs: 0.86rem;
+  --text-sm: 1rem;
+  --text-base: 1.12rem;
+  --text-lg: 1.28rem;
+  --text-xl: 1.42rem;
+  --text-2xl: 1.74rem;
+  --text-3xl: 2.12rem;
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;

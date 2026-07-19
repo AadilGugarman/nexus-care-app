@@ -23,11 +23,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-font-size="default">
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('mr-route-planner-v1');if(t){var s=JSON.parse(t);var th=s.settings&&s.settings.theme;var m=window.matchMedia('(prefers-color-scheme: dark)').matches;if(th==='dark'||(th!=='light'&&m)){document.documentElement.classList.add('dark');}}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('mr-route-planner-v1');if(t){var s=JSON.parse(t);var st=s.settings||{};var th=st.theme;var fs=st.fontSize;var m=window.matchMedia('(prefers-color-scheme: dark)').matches;if(th==='dark'||(th!=='light'&&m)){document.documentElement.classList.add('dark');}if(fs==='small'||fs==='default'||fs==='large'||fs==='extra-large'){document.documentElement.dataset.fontSize=fs;}}}catch(e){}})();`,
           }}
         />
       </head>

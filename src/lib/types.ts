@@ -50,6 +50,8 @@ export interface Route {
   order: number;
 }
 
+export type FontSizePreference = 'small' | 'default' | 'large' | 'extra-large';
+
 export interface AppState {
   doctors: Doctor[];
   deletedDoctorIds: number[];
@@ -58,6 +60,7 @@ export interface AppState {
   routes: Route[];
   settings: {
     theme: 'light' | 'dark' | 'system';
+    fontSize: FontSizePreference;
   };
 }
 

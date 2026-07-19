@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   FileText,
   Mail,
+  Type,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -22,17 +23,24 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import type { FontSizePreference } from "@/lib/types";
 
-function SettingsImpl() {
+interface SettingsProps {
+  onBack?: () => void;
+}
+
+function SettingsImpl({ onBack }: SettingsProps) {
   const router = useRouter();
-  const { state, resetToDefault, importState } = useStore();
+  const { state, resetToDefault, importState, updateSettings } = useStore();
   const { user, profile, role, loading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    if (onBack) {
+      onBack();
+    } else if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
     } else {
       router.push("/");
@@ -81,7 +89,10 @@ function SettingsImpl() {
           assignments: parsed.assignments ?? {},
           routeOrder: parsed.routeOrder ?? {},
           routes: parsed.routes ?? [],
-          settings: parsed.settings ?? { theme: "system" },
+          settings: parsed.settings ?? {
+            theme: "system",
+            fontSize: "default",
+          },
         });
         setImportStatus("Backup restored successfully");
         setTimeout(() => setImportStatus(null), 2500);
@@ -95,7 +106,11 @@ function SettingsImpl() {
   }
 
   function setTheme(theme: "light" | "dark" | "system") {
-    importState({ ...state, settings: { ...state.settings, theme } });
+    void updateSettings({ theme });
+  }
+
+  function setFontSize(fontSize: FontSizePreference) {
+    void updateSettings({ fontSize });
   }
 
   const themes: {
@@ -108,20 +123,19 @@ function SettingsImpl() {
     { key: "system", label: "System", Icon: Monitor },
   ];
 
+  const fontSizes: {
+    key: FontSizePreference;
+    label: string;
+    sample: string;
+  }[] = [
+    { key: "small", label: "Small", sample: "Aa" },
+    { key: "default", label: "Default", sample: "Aa" },
+    { key: "large", label: "Large", sample: "Aa" },
+    { key: "extra-large", label: "Extra Large", sample: "Aa" },
+  ];
+
   return (
     <div className="space-y-5 pb-2">
-      {/* Back Button */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-semibold"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
-      </div>
-
       <div>
         <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
           Settings
@@ -159,6 +173,62 @@ function SettingsImpl() {
               <span className="text-xs font-bold">{label}</span>
             </button>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-1">
+          Accessibility
+        </h2>
+        <div className="card-clean overflow-hidden">
+          <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-700 flex items-start gap-3">
+            <div className="h-9 w-9 rounded-lg bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center shrink-0">
+              <Type className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-slate-900 dark:text-slate-50 text-sm">
+                Text Size
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                Adjust text across the app for better readability.
+              </div>
+            </div>
+          </div>
+
+          <div className="p-2 grid grid-cols-2 gap-2">
+            {fontSizes.map(({ key, label, sample }) => {
+              const isActive = state.settings.fontSize === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFontSize(key)}
+                  className={cn(
+                    "rounded-xl border px-3 py-3 text-left transition-colors",
+                    isActive
+                      ? "border-violet-500 bg-violet-50 dark:bg-violet-500/10 dark:border-violet-500"
+                      : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
+                        {label}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
+                        {sample}
+                      </div>
+                    </div>
+                    {isActive && (
+                      <div className="h-5 w-5 rounded-full bg-violet-600 dark:bg-violet-500 flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

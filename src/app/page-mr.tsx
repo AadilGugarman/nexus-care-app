@@ -27,6 +27,7 @@ export function MRDashboard() {
   const { state, addDoctor, updateDoctor, deleteDoctor, isLoaded } = useStore();
   const { role } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
+  const [lastTab, setLastTab] = useState<TabKey>("dashboard");
   const [doctorDialogOpen, setDoctorDialogOpen] = useState(false);
   const [doctorAction, setDoctorAction] = useState<ActionType>(null);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
@@ -39,6 +40,16 @@ export function MRDashboard() {
       (a, b) => a.localeCompare(b),
     );
   }, [state.doctors]);
+
+  const handleSetActiveTab = useCallback(
+    (newTab: TabKey) => {
+      if (activeTab !== "settings") {
+        setLastTab(activeTab);
+      }
+      setActiveTab(newTab);
+    },
+    [activeTab],
+  );
 
   const handleAddDoctor = useCallback(() => {
     setEditingDoctor(null);
@@ -64,8 +75,8 @@ export function MRDashboard() {
     }
 
     setPendingRouteSheetOpen(true);
-    setActiveTab("routes");
-  }, [activeTab, openRouteSheetNow]);
+    handleSetActiveTab("routes");
+  }, [activeTab, openRouteSheetNow, handleSetActiveTab]);
 
   useEffect(() => {
     if (activeTab !== "routes" || !pendingRouteSheetOpen) return;
@@ -226,7 +237,13 @@ export function MRDashboard() {
         showSettings={activeTab !== "settings"}
         showNotifications={activeTab !== "settings"}
         showLogout={activeTab !== "settings"}
-        onSettingsClick={() => setActiveTab("settings")}
+        onSettingsClick={() => handleSetActiveTab("settings")}
+        backButton={
+          activeTab === "settings"
+            ? { label: "Back" }
+            : undefined
+        }
+        onBack={() => handleSetActiveTab(lastTab)}
       />
 
       <div
@@ -236,7 +253,7 @@ export function MRDashboard() {
         <div key={activeTab} className="animate-fade-in">
           {activeTab === "dashboard" && (
             <Dashboard
-              onNavigate={setActiveTab}
+              onNavigate={handleSetActiveTab}
               onAddDoctor={handleAddDoctor}
               onCreateRoute={openRouteSheet}
               onExport={handleExport}
@@ -263,7 +280,8 @@ export function MRDashboard() {
           )}
           {activeTab === "routes" && <Routes />}
           {activeTab === "today" && <TodayView />}
-          {activeTab === "settings" && <Settings />}
+          {activeTab === "settings" && <Settings onBack={() => handleSetActiveTab(lastTab)}
+            />}
         </div>
       </div>
 
@@ -278,7 +296,7 @@ export function MRDashboard() {
         </button>
       )}
 
-      <BottomNav active={activeTab} onChange={setActiveTab} />
+      <BottomNav active={activeTab} onChange={handleSetActiveTab} />
 
       <DoctorManagementDialog
         open={doctorDialogOpen}

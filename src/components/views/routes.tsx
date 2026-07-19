@@ -436,21 +436,6 @@ function RoutesImpl() {
             </h2>
           </div>
 
-          <Button
-            onClick={async () => {
-              try {
-                await deleteRoute(routeId);
-                toast.success('Route deleted');
-              } catch (error) {
-                // Error toast already shown by store
-              }
-            }}
-            variant="outline"
-            className="w-full h-11 text-sm rounded-lg gap-1.5 font-bold border-2 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Route
-          </Button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden">

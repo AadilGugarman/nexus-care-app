@@ -15,6 +15,7 @@ import type {
   DayKey,
   Doctor,
   DoctorVisitInfo,
+  FontSizePreference,
   Route,
   RouteOrder,
   RouteStatusInfo,
@@ -28,6 +29,7 @@ import {
 } from "./supabase/services";
 
 const STORAGE_KEY = "mr-route-planner-v1";
+const DEFAULT_FONT_SIZE: FontSizePreference = "default";
 
 const defaultState: AppState = {
   doctors: [],
@@ -35,8 +37,17 @@ const defaultState: AppState = {
   assignments: {},
   routeOrder: {},
   routes: [],
-  settings: { theme: "system" },
+  settings: { theme: "system", fontSize: DEFAULT_FONT_SIZE },
 };
+
+function normalizeFontSize(value: unknown): FontSizePreference {
+  return value === "small" ||
+    value === "default" ||
+    value === "large" ||
+    value === "extra-large"
+    ? value
+    : DEFAULT_FONT_SIZE;
+}
 
 function startOfDayValue(date: Date): Date {
   const next = new Date(date);
@@ -115,7 +126,10 @@ function loadState(): AppState {
       assignments: parsed.assignments ?? {},
       routeOrder: parsed.routeOrder ?? {},
       routes: parsed.routes ?? [],
-      settings: { theme: parsed.settings?.theme ?? "system" },
+      settings: {
+        theme: parsed.settings?.theme ?? "system",
+        fontSize: normalizeFontSize(parsed.settings?.fontSize),
+      },
     };
   } catch {
     return defaultState;
@@ -138,7 +152,7 @@ function createDefaultState(): AppState {
     assignments: {},
     routeOrder: {},
     routes: [],
-    settings: { theme: "system" },
+    settings: { theme: "system", fontSize: DEFAULT_FONT_SIZE },
   };
 }
 
@@ -184,6 +198,7 @@ interface StoreContextValue {
   // Reset / backup
   resetToDefault: () => void;
   importState: (next: AppState) => void;
+  updateSettings: (patch: Partial<AppState["settings"]>) => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextValue | null>(null);
@@ -276,6 +291,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           deletedDoctorIds: [], // Managed in database now
           settings: {
             theme: dbSettings?.theme || "system",
+            fontSize: normalizeFontSize(dbSettings?.settings_json?.fontSize),
           },
         });
 
@@ -318,7 +334,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const shouldBeDark =
       theme === "dark" || (theme === "system" && prefersDark);
     root.classList.toggle("dark", shouldBeDark);
-  }, [state.settings.theme]);
+    root.dataset.fontSize = state.settings.fontSize;
+  }, [state.settings.theme, state.settings.fontSize]);
+
+  const updateSettings = useCallback(
+    async (patch: Partial<AppState["settings"]>) => {
+      const nextSettings = {
+        ...state.settings,
+        ...patch,
+        fontSize: normalizeFontSize(patch.fontSize ?? state.settings.fontSize),
+      };
+
+      setState((s) => ({
+        ...s,
+        settings: nextSettings,
+      }));
+
+      try {
+        const existingSettings = await SettingsService.getSettings();
+        await SettingsService.upsertSettings({
+          theme: nextSettings.theme,
+          settings_json: {
+            ...(existingSettings?.settings_json ?? {}),
+            fontSize: nextSettings.fontSize,
+          },
+        });
+      } catch {
+        // Keep the local preference applied even if remote sync is unavailable.
+      }
+    },
+    [state.settings],
+  );
 
   const addDoctor = useCallback(
     async (doctor: Omit<Doctor, "id">): Promise<Doctor> => {
@@ -825,7 +871,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       assignments: next.assignments ?? {},
       routeOrder: next.routeOrder ?? {},
       routes: next.routes ?? [],
-      settings: { theme: next.settings?.theme ?? "system" },
+      settings: {
+        theme: next.settings?.theme ?? "system",
+        fontSize: normalizeFontSize(next.settings?.fontSize),
+      },
     });
   }, []);
 
@@ -853,6 +902,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       uncompleteRoute,
       resetToDefault,
       importState,
+      updateSettings,
     }),
     [
       state,
@@ -877,6 +927,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       uncompleteRoute,
       resetToDefault,
       importState,
+      updateSettings,
     ],
   );
 
