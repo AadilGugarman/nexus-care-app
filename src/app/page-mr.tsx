@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Plus, Route } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
@@ -30,6 +30,7 @@ export function MRDashboard() {
   const [doctorDialogOpen, setDoctorDialogOpen] = useState(false);
   const [doctorAction, setDoctorAction] = useState<ActionType>(null);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [pendingRouteSheetOpen, setPendingRouteSheetOpen] = useState(false);
 
   const isAdmin = role === "admin";
 
@@ -45,7 +46,7 @@ export function MRDashboard() {
     setDoctorDialogOpen(true);
   }, []);
 
-  const openRouteSheet = useCallback(() => {
+  const openRouteSheetNow = useCallback(() => {
     if (
       (window as typeof window & { __openRouteSheet?: () => void })
         .__openRouteSheet
@@ -55,6 +56,23 @@ export function MRDashboard() {
       ).__openRouteSheet?.();
     }
   }, []);
+
+  const openRouteSheet = useCallback(() => {
+    if (activeTab === "routes") {
+      openRouteSheetNow();
+      return;
+    }
+
+    setPendingRouteSheetOpen(true);
+    setActiveTab("routes");
+  }, [activeTab, openRouteSheetNow]);
+
+  useEffect(() => {
+    if (activeTab !== "routes" || !pendingRouteSheetOpen) return;
+
+    openRouteSheetNow();
+    setPendingRouteSheetOpen(false);
+  }, [activeTab, pendingRouteSheetOpen, openRouteSheetNow]);
 
   const handleEditDoctor = useCallback((d: Doctor) => {
     setEditingDoctor(d);
