@@ -407,74 +407,86 @@ function RoutesImpl() {
     };
 
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setSelectedRoute(null)}
-            className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50 truncate">{route.name}</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{route.location}</p>
+      <div
+        className="flex min-h-0 flex-col overflow-hidden"
+        style={{ height: 'calc(100dvh - 13rem)' }}
+      >
+        <div className="shrink-0 space-y-4 pb-4">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedRoute(null)}
+              className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50 truncate">
+                {route.name}
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                {route.location}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2 px-1">
+          <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Doctors ({doctors.length})
             </h2>
           </div>
-          <div className="card-clean overflow-hidden">
+
+          <Button
+            onClick={async () => {
+              try {
+                await deleteRoute(routeId);
+                toast.success('Route deleted');
+              } catch (error) {
+                // Error toast already shown by store
+              }
+            }}
+            variant="outline"
+            className="w-full h-11 text-sm rounded-lg gap-1.5 font-bold border-2 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Route
+          </Button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <div className="card-clean flex h-full min-h-0 flex-col overflow-hidden">
             {doctors.length === 0 ? (
-              <div className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500 dark:text-slate-400">
                 No doctors in this route yet.
               </div>
             ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDoctorDragEnd}>
-                <SortableContext items={doctors.map((d) => d.id)} strategy={verticalListSortingStrategy}>
-                  <div>
-                    {doctors.map((d, idx) => (
-                      <SortableRouteDoctorItem
-                        key={d.id}
-                        doctor={d}
-                        index={idx}
-                        isRouteCompleted={isRouteCompleted}
-                        onRemove={async () => {
-                          try {
-                            await removeDoctorFromRoute(routeId, d.id);
-                            toast.success('Doctor removed from route');
-                          } catch (error) {
-                            // Error toast already shown by store
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDoctorDragEnd}>
+                  <SortableContext items={doctors.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+                    <div>
+                      {doctors.map((d, idx) => (
+                        <SortableRouteDoctorItem
+                          key={d.id}
+                          doctor={d}
+                          index={idx}
+                          isRouteCompleted={isRouteCompleted}
+                          onRemove={async () => {
+                            try {
+                              await removeDoctorFromRoute(routeId, d.id);
+                              toast.success('Doctor removed from route');
+                            } catch (error) {
+                              // Error toast already shown by store
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
             )}
           </div>
         </div>
-
-        <Button
-          onClick={async () => {
-            try {
-              await deleteRoute(routeId);
-              toast.success('Route deleted');
-            } catch (error) {
-              // Error toast already shown by store
-            }
-          }}
-          variant="outline"
-          className="w-full h-11 text-sm rounded-lg gap-1.5 font-bold border-2 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete Route
-        </Button>
 
         <RouteBottomSheet
           open={formOpen}
