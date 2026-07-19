@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   DndContext,
@@ -41,7 +41,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useStore, getRouteStatusInfo, getDoctorsInRoute, getRoutesForLocation, getDoctorVisitInfo, getVisitStatusLabel } from '@/lib/store';
 import type { Doctor, Route as RouteType } from '@/lib/types';
-import { RouteFormDialog } from '@/components/route-form-dialog';
+import { RouteBottomSheet } from '@/components/route-bottom-sheet';
 import { RouteDoctorPicker } from '@/components/route-doctor-picker';
 import { Button } from '@/components/ui/button';
 
@@ -366,6 +366,21 @@ function RoutesImpl() {
     setPickerOpen(true);
   }, []);
 
+  const openRouteSheet = useCallback(() => {
+    setEditingRoute(null);
+    setFormOpen(true);
+  }, []);
+
+  useEffect(() => {
+    (window as typeof window & { __openRouteSheet?: () => void }).__openRouteSheet =
+      openRouteSheet;
+
+    return () => {
+      delete (window as typeof window & { __openRouteSheet?: () => void })
+        .__openRouteSheet;
+    };
+  }, [openRouteSheet]);
+
   if (selectedRoute) {
     const routeId = selectedRoute;
     const route = state.routes.find((r) => r.id === routeId);
@@ -461,11 +476,15 @@ function RoutesImpl() {
           Delete Route
         </Button>
 
-        <RouteFormDialog
+        <RouteBottomSheet
           open={formOpen}
           onOpenChange={setFormOpen}
           initialName={editingRoute?.name}
+          initialLocation={editingRoute?.location}
           locations={allLocations}
+          getDoctorCount={(location) =>
+            state.doctors.filter((doctor) => doctor.location === location).length
+          }
           onSubmit={async (data) => {
             try {
               await updateRoute(editingRoute!.id, { name: data.name });
@@ -522,10 +541,7 @@ function RoutesImpl() {
         </div>
 
         <Button
-          onClick={() => {
-            setEditingRoute(null);
-            setFormOpen(true);
-          }}
+          onClick={openRouteSheet}
           className="w-full h-11 justify-start text-sm rounded-lg gap-2 font-bold bg-indigo-600 hover:bg-indigo-700"
         >
           <Plus className="h-4 w-4" />
@@ -578,12 +594,15 @@ function RoutesImpl() {
           </SortableContext>
         </DndContext>
 
-        <RouteFormDialog
+        <RouteBottomSheet
           open={formOpen}
           onOpenChange={setFormOpen}
           initialName={editingRoute?.name}
-          initialLocation={selectedLocation}
+          initialLocation={editingRoute?.location ?? selectedLocation}
           locations={allLocations}
+          getDoctorCount={(location) =>
+            state.doctors.filter((doctor) => doctor.location === location).length
+          }
           onSubmit={async (data) => {
             try {
               if (editingRoute) {
@@ -622,10 +641,7 @@ function RoutesImpl() {
       </div>
 
       <Button
-        onClick={() => {
-          setEditingRoute(null);
-          setFormOpen(true);
-        }}
+        onClick={openRouteSheet}
         className="w-full h-11 justify-start text-sm rounded-lg gap-2 font-bold bg-indigo-600 hover:bg-indigo-700"
       >
         <Plus className="h-4 w-4" />
@@ -665,11 +681,15 @@ function RoutesImpl() {
         </div>
       )}
 
-      <RouteFormDialog
+      <RouteBottomSheet
         open={formOpen}
         onOpenChange={setFormOpen}
         initialName={editingRoute?.name}
+        initialLocation={editingRoute?.location}
         locations={allLocations}
+        getDoctorCount={(location) =>
+          state.doctors.filter((doctor) => doctor.location === location).length
+        }
         onSubmit={async (data) => {
           try {
             if (editingRoute) {

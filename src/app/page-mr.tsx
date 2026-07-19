@@ -17,7 +17,6 @@ import { Routes } from "@/components/views/routes";
 import { TodayView } from "@/components/views/today";
 import { Settings } from "@/components/views/settings";
 import { DoctorManagementDialog } from "@/components/doctor-management-dialog";
-import { RouteBottomSheet } from "@/components/route-bottom-sheet";
 import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import type { Doctor, TabKey } from "@/lib/types";
@@ -25,19 +24,11 @@ import type { Doctor, TabKey } from "@/lib/types";
 type ActionType = "add" | "edit" | "status" | null;
 
 export function MRDashboard() {
-  const {
-    state,
-    addDoctor,
-    updateDoctor,
-    deleteDoctor,
-    createRoute,
-    isLoaded,
-  } = useStore();
+  const { state, addDoctor, updateDoctor, deleteDoctor, isLoaded } = useStore();
   const { role } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
   const [doctorDialogOpen, setDoctorDialogOpen] = useState(false);
   const [doctorAction, setDoctorAction] = useState<ActionType>(null);
-  const [routeFormOpen, setRouteFormOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
 
   const isAdmin = role === "admin";
@@ -48,17 +39,21 @@ export function MRDashboard() {
     );
   }, [state.doctors]);
 
-  const getDoctorCountForLocation = useCallback(
-    (location: string) => {
-      return state.doctors.filter((d) => d.location === location).length;
-    },
-    [state.doctors],
-  );
-
   const handleAddDoctor = useCallback(() => {
     setEditingDoctor(null);
     setDoctorAction("add");
     setDoctorDialogOpen(true);
+  }, []);
+
+  const openRouteSheet = useCallback(() => {
+    if (
+      (window as typeof window & { __openRouteSheet?: () => void })
+        .__openRouteSheet
+    ) {
+      (
+        window as typeof window & { __openRouteSheet?: () => void }
+      ).__openRouteSheet?.();
+    }
   }, []);
 
   const handleEditDoctor = useCallback((d: Doctor) => {
@@ -142,7 +137,7 @@ export function MRDashboard() {
     if (activeTab === "routes") {
       return {
         icon: <Route className="h-6 w-6" />,
-        onClick: () => setRouteFormOpen(true),
+        onClick: openRouteSheet,
         label: "Create Route",
       };
     }
@@ -162,7 +157,7 @@ export function MRDashboard() {
       onClick: handleAddDoctor,
       label: "Add Doctor",
     };
-  }, [activeTab, handleAddDoctor]);
+  }, [activeTab, handleAddDoctor, openRouteSheet]);
 
   return (
     <main className="min-h-screen relative">
@@ -225,7 +220,7 @@ export function MRDashboard() {
             <Dashboard
               onNavigate={setActiveTab}
               onAddDoctor={handleAddDoctor}
-              onCreateRoute={() => setRouteFormOpen(true)}
+              onCreateRoute={openRouteSheet}
               onExport={handleExport}
             />
           )}
@@ -285,21 +280,6 @@ export function MRDashboard() {
         onDirectDelete={
           isAdmin && editingDoctor ? handleDoctorDelete : undefined
         }
-      />
-
-      <RouteBottomSheet
-        open={routeFormOpen}
-        onOpenChange={setRouteFormOpen}
-        locations={locations}
-        getDoctorCount={getDoctorCountForLocation}
-        onSubmit={async (data) => {
-          try {
-            await createRoute(data.location, data.name);
-            toast.success("Route created successfully");
-          } catch (error) {
-            // Error toast already shown by store
-          }
-        }}
       />
     </main>
   );
