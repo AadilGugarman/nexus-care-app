@@ -1,8 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Users, Route as RouteIcon, Activity, TrendingUp, BarChart3, Eye } from 'lucide-react';
-import { AnalyticsService, type MRStatistics, type SystemStatistics, type RouteAnalytics } from '@/lib/supabase/services';
+import { useEffect, useState } from "react";
+
+import {
+  Users,
+  Route as RouteIcon,
+  Activity,
+  TrendingUp,
+  BarChart3,
+  Eye,
+  RefreshCw,
+} from "lucide-react";
+import {
+  AnalyticsService,
+  type MRStatistics,
+  type SystemStatistics,
+  type RouteAnalytics,
+} from "@/lib/supabase/services";
 
 export default function AdminAnalyticsPage() {
   const [systemStats, setSystemStats] = useState<SystemStatistics | null>(null);
@@ -10,7 +24,9 @@ export default function AdminAnalyticsPage() {
   const [routes, setRoutes] = useState<RouteAnalytics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'routes'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "routes">(
+    "overview",
+  );
 
   useEffect(() => {
     loadAnalytics();
@@ -20,7 +36,7 @@ export default function AdminAnalyticsPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [system, mrs, allRoutes] = await Promise.all([
         AnalyticsService.getSystemStatistics(),
         AnalyticsService.getMRStatistics(),
@@ -31,8 +47,8 @@ export default function AdminAnalyticsPage() {
       setMRStats(mrs);
       setRoutes(allRoutes);
     } catch (err) {
-      console.error('Error loading analytics:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      console.error("Error loading analytics:", err);
+      setError(err instanceof Error ? err.message : "Failed to load analytics");
     } finally {
       setLoading(false);
     }
@@ -40,11 +56,11 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
+      <div className="min-h-screen bg-slate-950 pt-8">
+        <div className="px-4 sm:px-5 lg:px-6 max-w-7xl mx-auto py-20">
+          <div className="text-center">
             <div className="animate-spin h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Loading analytics...</p>
+            <p className="text-sm text-slate-400">Loading analytics...</p>
           </div>
         </div>
       </div>
@@ -53,13 +69,13 @@ export default function AdminAnalyticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-lg p-6 text-center">
-            <p className="text-rose-700 dark:text-rose-300 font-semibold">Error: {error}</p>
+      <div className="min-h-screen bg-slate-950 pt-8">
+        <div className="px-4 sm:px-5 lg:px-6 max-w-7xl mx-auto py-20">
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-6 text-center">
+            <p className="text-rose-300 font-semibold">Error: {error}</p>
             <button
               onClick={loadAnalytics}
-              className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+              className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-900/20"
             >
               Retry
             </button>
@@ -70,20 +86,15 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">Analytics</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Multi-MR system overview and statistics
-            </p>
-          </div>
+    <div className="min-h-screen bg-slate-950 pt-8">
+      <div className="px-4 sm:px-5 lg:px-6 max-w-7xl mx-auto space-y-6">
+        {/* Refresh Button */}
+        <div className="flex justify-end">
           <button
             onClick={loadAnalytics}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold"
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-semibold shadow-lg shadow-indigo-900/20"
           >
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
@@ -92,33 +103,33 @@ export default function AdminAnalyticsPage() {
         <div className="border-b border-slate-200 dark:border-slate-700">
           <div className="flex gap-4">
             <button
-              onClick={() => setActiveTab('overview')}
+              onClick={() => setActiveTab("overview")}
               className={`px-4 py-2 font-semibold text-sm border-b-2 transition-colors ${
-                activeTab === 'overview'
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                activeTab === "overview"
+                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
               <BarChart3 className="inline h-4 w-4 mr-2" />
               Overview
             </button>
             <button
-              onClick={() => setActiveTab('users')}
+              onClick={() => setActiveTab("users")}
               className={`px-4 py-2 font-semibold text-sm border-b-2 transition-colors ${
-                activeTab === 'users'
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                activeTab === "users"
+                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
               <Users className="inline h-4 w-4 mr-2" />
               MR Users ({mrStats.length})
             </button>
             <button
-              onClick={() => setActiveTab('routes')}
+              onClick={() => setActiveTab("routes")}
               className={`px-4 py-2 font-semibold text-sm border-b-2 transition-colors ${
-                activeTab === 'routes'
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                activeTab === "routes"
+                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
               <RouteIcon className="inline h-4 w-4 mr-2" />
@@ -128,7 +139,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Overview Tab */}
-        {activeTab === 'overview' && systemStats && (
+        {activeTab === "overview" && systemStats && (
           <div className="space-y-6">
             {/* Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -169,7 +180,12 @@ export default function AdminAnalyticsPage() {
               </h2>
               <div className="space-y-3">
                 {mrStats
-                  .sort((a, b) => (b.visited_doctor_count + b.route_count) - (a.visited_doctor_count + a.route_count))
+                  .sort(
+                    (a, b) =>
+                      b.visited_doctor_count +
+                      b.route_count -
+                      (a.visited_doctor_count + a.route_count),
+                  )
                   .slice(0, 5)
                   .map((mr) => (
                     <div
@@ -178,22 +194,36 @@ export default function AdminAnalyticsPage() {
                     >
                       <div className="flex-1">
                         <div className="font-semibold text-slate-900 dark:text-slate-50">
-                          {mr.full_name || 'Unnamed User'}
+                          {mr.full_name || "Unnamed User"}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{mr.email}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          {mr.email}
+                        </div>
                       </div>
                       <div className="flex gap-4 text-sm">
                         <div className="text-center">
-                          <div className="font-bold text-indigo-600 dark:text-indigo-400">{mr.route_count}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">Routes</div>
+                          <div className="font-bold text-indigo-600 dark:text-indigo-400">
+                            {mr.route_count}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            Routes
+                          </div>
                         </div>
                         <div className="text-center">
-                          <div className="font-bold text-emerald-600 dark:text-emerald-400">{mr.visited_doctor_count}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">Visits</div>
+                          <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                            {mr.visited_doctor_count}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            Visits
+                          </div>
                         </div>
                         <div className="text-center">
-                          <div className="font-bold text-purple-600 dark:text-purple-400">{mr.assigned_doctor_count}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">Assigned</div>
+                          <div className="font-bold text-purple-600 dark:text-purple-400">
+                            {mr.assigned_doctor_count}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            Assigned
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -204,7 +234,7 @@ export default function AdminAnalyticsPage() {
         )}
 
         {/* Users Tab */}
-        {activeTab === 'users' && (
+        {activeTab === "users" && (
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -232,32 +262,47 @@ export default function AdminAnalyticsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {mrStats.map((mr) => (
-                    <tr key={mr.user_id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                    <tr
+                      key={mr.user_id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                    >
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-slate-900 dark:text-slate-50">{mr.full_name || 'Unnamed'}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{mr.email}</div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-50">
+                          {mr.full_name || "Unnamed"}
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          {mr.email}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="font-bold text-slate-900 dark:text-slate-50">{mr.route_count}</div>
+                        <div className="font-bold text-slate-900 dark:text-slate-50">
+                          {mr.route_count}
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           {mr.active_route_count} active
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="font-bold text-slate-900 dark:text-slate-50">{mr.visited_doctor_count}</div>
+                        <div className="font-bold text-slate-900 dark:text-slate-50">
+                          {mr.visited_doctor_count}
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           of {mr.total_visit_count}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="font-bold text-slate-900 dark:text-slate-50">{mr.assigned_doctor_count}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">doctors</div>
+                        <div className="font-bold text-slate-900 dark:text-slate-50">
+                          {mr.assigned_doctor_count}
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          doctors
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm text-slate-600 dark:text-slate-400">
                           {mr.last_activity
                             ? new Date(mr.last_activity).toLocaleDateString()
-                            : 'Never'}
+                            : "Never"}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -274,7 +319,7 @@ export default function AdminAnalyticsPage() {
         )}
 
         {/* Routes Tab */}
-        {activeTab === 'routes' && (
+        {activeTab === "routes" && (
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -305,24 +350,37 @@ export default function AdminAnalyticsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {routes.map((route) => (
-                    <tr key={route.route_id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                    <tr
+                      key={route.route_id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                    >
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-slate-900 dark:text-slate-50">{route.route_name}</div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-50">
+                          {route.route_name}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm text-slate-600 dark:text-slate-400">{route.location}</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                          {route.location}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm font-medium text-slate-900 dark:text-slate-50">
-                          {route.full_name || 'Unknown'}
+                          {route.full_name || "Unknown"}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{route.email}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          {route.email}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="font-bold text-slate-900 dark:text-slate-50">{route.doctor_count}</div>
+                        <div className="font-bold text-slate-900 dark:text-slate-50">
+                          {route.doctor_count}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="text-sm text-slate-600 dark:text-slate-400">{route.cycle_days}</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                          {route.cycle_days}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {route.completed_at ? (
@@ -364,23 +422,32 @@ function StatCard({
   label: string;
   value: number;
   subtext: string;
-  color: 'blue' | 'emerald' | 'purple' | 'amber';
+  color: "blue" | "emerald" | "purple" | "amber";
 }) {
   const colorClasses = {
-    blue: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
-    emerald: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
-    purple: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
-    amber: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
+    blue: "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400",
+    emerald:
+      "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+    purple:
+      "bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400",
+    amber:
+      "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400",
   };
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
       <div className="flex items-center gap-3 mb-3">
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
-        <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">{label}</div>
+        <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+          {label}
+        </div>
       </div>
-      <div className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-1">{value}</div>
-      <div className="text-xs text-slate-500 dark:text-slate-400">{subtext}</div>
+      <div className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-1">
+        {value}
+      </div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">
+        {subtext}
+      </div>
     </div>
   );
 }

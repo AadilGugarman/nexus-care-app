@@ -3,8 +3,6 @@
 import { useAuth } from '@/lib/auth';
 import Link from 'next/link';
 import { User, LogIn, UserPlus, Crown, Briefcase, Loader2 } from 'lucide-react';
-import { LogoutButton } from './LogoutButton';
-import { NotificationBell } from '../NotificationBell';
 
 interface AuthHeaderProps {
   variant?: 'default' | 'compact';
@@ -76,25 +74,21 @@ export function AuthHeader({ variant = 'default' }: AuthHeaderProps) {
   // Logged in - show user info
   if (variant === 'compact') {
     return (
-      <div className="flex items-center gap-2">
-        <NotificationBell />
-        <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-800/50">
-          <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
-            <User className="w-3.5 h-3.5 text-blue-500" />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-white">
-              {profile?.full_name || user.email?.split('@')[0] || 'User'}
-            </span>
-            {role === 'admin' && (
-              <Crown className="w-3 h-3 text-yellow-500" />
-            )}
-            {role === 'mr' && (
-              <Briefcase className="w-3 h-3 text-blue-500" />
-            )}
-          </div>
+      <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-800/50">
+        <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
+          <User className="w-3.5 h-3.5 text-blue-500" />
         </div>
-        <LogoutButton variant="ghost" size="sm" showText={false} />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold text-white">
+            {profile?.full_name || user.email?.split('@')[0] || 'User'}
+          </span>
+          {role === 'admin' && (
+            <Crown className="w-3 h-3 text-yellow-500" />
+          )}
+          {role === 'mr' && (
+            <Briefcase className="w-3 h-3 text-blue-500" />
+          )}
+        </div>
       </div>
     );
   }
@@ -124,8 +118,6 @@ export function AuthHeader({ variant = 'default' }: AuthHeaderProps) {
         </div>
         <div className="text-xs text-slate-400 truncate">{user.email}</div>
       </div>
-      <NotificationBell />
-      <LogoutButton variant="ghost" size="sm" showText={false} />
     </div>
   );
 }

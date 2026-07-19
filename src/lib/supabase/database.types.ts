@@ -54,6 +54,13 @@ export interface Profile {
   email: string;
   full_name: string | null;
   role: 'mr' | 'admin' | 'public';
+  status: 'pending' | 'active' | 'disabled' | 'suspended'; // Added in Phase 10
+  territory: string[]; // Added in Phase 10 - Array of locations
+  phone_number: string | null; // Added in Phase 10
+  notes: string | null; // Added in Phase 10
+  last_login: string | null; // Added in Phase 10
+  is_deleted: boolean; // Added in Phase 10
+  deleted_at: string | null; // Added in Phase 10
   created_at: string;
   updated_at: string;
 }
@@ -63,12 +70,23 @@ export interface ProfileInsert {
   email: string;
   full_name?: string | null;
   role?: 'mr' | 'admin' | 'public';
+  status?: 'pending' | 'active' | 'disabled' | 'suspended';
+  territory?: string[];
+  phone_number?: string | null;
+  notes?: string | null;
 }
 
 export interface ProfileUpdate {
   email?: string;
   full_name?: string | null;
   role?: 'mr' | 'admin' | 'public';
+  status?: 'pending' | 'active' | 'disabled' | 'suspended';
+  territory?: string[];
+  phone_number?: string | null;
+  notes?: string | null;
+  last_login?: string | null;
+  is_deleted?: boolean;
+  deleted_at?: string | null;
 }
 
 // Doctor (Public Master Data)

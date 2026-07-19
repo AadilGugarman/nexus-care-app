@@ -57,16 +57,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email);
-
       if (session?.user) {
-        await loadProfile(session.user.id);
+        // Keep loading=true until profile loads
         setState((prev) => ({
           ...prev,
           user: session.user,
           session,
-          loading: false,
+          loading: true,
         }));
+
+        // Load profile, this will set loading=false when done
+        await loadProfile(session.user.id);
       } else {
         setState({
           user: null,
@@ -97,15 +98,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       if (session?.user) {
-        await loadProfile(session.user.id);
+        // Keep loading=true, let loadProfile set it to false
         setState({
           user: session.user,
           session,
-          profile: null, // Will be loaded by loadProfile
+          profile: null,
           role: null,
-          loading: false,
+          loading: true,
           error: null,
         });
+        
+        // Load profile, this will set loading=false when done
+        await loadProfile(session.user.id);
       } else {
         setState({
           user: null,
@@ -117,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error) {
-      console.error('Error loading session:', error);
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -143,16 +146,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profile = data as Profile | null;
       const role = (profile?.role as UserRole) || 'mr';
 
+      // Set loading=false AFTER profile and role are set
       setState((prev) => ({
         ...prev,
         profile,
         role,
+        loading: false,
         error: null,
       }));
     } catch (error) {
-      console.error('Error loading profile:', error);
+      // Even on error, set loading=false with default role
       setState((prev) => ({
         ...prev,
+        profile: null,
+        role: 'mr', // Default to MR if profile load fails
+        loading: false,
         error: error instanceof Error ? error.message : 'Failed to load profile',
       }));
     }
@@ -173,16 +181,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       if (data.user) {
-        await loadProfile(data.user.id);
+        // Set user and session, keep loading=true
         setState((prev) => ({
           ...prev,
           user: data.user,
           session: data.session,
-          loading: false,
+          loading: true,
         }));
+        
+        // Load profile, this will set loading=false when done
+        await loadProfile(data.user.id);
       }
     } catch (error) {
-      console.error('Error signing in:', error);
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -212,7 +222,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error: null,
       });
     } catch (error) {
-      console.error('Error signing out:', error);
       setState((prev) => ({
         ...prev,
         loading: false,

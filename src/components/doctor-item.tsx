@@ -20,6 +20,7 @@ interface DoctorItemProps {
   onRequestInactive?: () => void;
   index?: number;
   isRouteCompleted?: boolean;
+  hideDayButton?: boolean; // New prop to hide day assignment button
 }
 
 export function DoctorItem({
@@ -33,6 +34,7 @@ export function DoctorItem({
   onRequestInactive,
   index,
   isRouteCompleted,
+  hideDayButton,
 }: DoctorItemProps) {
   const { markDoctorVisited, resetDoctorVisit } = useStore();
   const { role } = useAuth();
@@ -112,15 +114,17 @@ export function DoctorItem({
         >
           {isVisited ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
         </button>
-        <button
-          type="button"
-          onClick={onOpenDayModal}
-          className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-          aria-label="Assign days"
-          title="Assign days"
-        >
-          <Calendar className="h-4 w-4" />
-        </button>
+        {!hideDayButton && (
+          <button
+            type="button"
+            onClick={onOpenDayModal}
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            aria-label="Assign days"
+            title="Assign days"
+          >
+            <Calendar className="h-4 w-4" />
+          </button>
+        )}
         
         {/* Admin: Direct Edit */}
         {isAdmin && (

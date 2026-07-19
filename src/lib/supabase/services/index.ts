@@ -8,6 +8,7 @@ export { SettingsService } from './settings.service';
 export { AnalyticsService } from './analytics.service';
 export { DirectoryService } from './directory.service';
 export { NotificationsService } from './notifications.service';
+export { UserManagementService } from './user-management.service';
 
 export type {
   MRStatistics,
@@ -27,3 +28,11 @@ export type {
   Notification,
   NotificationFilters
 } from './notifications.service';
+
+export type {
+  UserProfile,
+  UserActivityStats,
+  UserStatus,
+  UserRole,
+  UpdateUserData
+} from './user-management.service';

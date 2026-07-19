@@ -2,10 +2,11 @@
 
 import { memo, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Check, CheckCircle2, ChevronDown, Circle, MapPin, Search, X } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, ChevronDown, Circle, MapPin, Search, X, UserPlus } from 'lucide-react';
 import { useStore, getDoctorsForLocationDay, getDoctorVisitInfo, getVisitStatusLabel } from '@/lib/store';
 import { DoctorDetailsDialog } from '@/components/doctor-details-dialog';
 import { LocationPicker } from '@/components/location-picker';
+import { DayDoctorPicker } from '@/components/day-doctor-picker';
 import { DAYS, DAY_LABELS, type DayKey, type Doctor } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useDebouncedValue } from '@/lib/hooks';
@@ -14,6 +15,7 @@ interface DaysProps {
   onEditDoctor: (d: Doctor) => void;
   onSuggestEdit?: (d: Doctor) => void;
   onRequestInactive?: (d: Doctor) => void;
+  onAssignDoctors?: () => void; // Callback for FAB click
 }
 
 function DetailDoctorRow({
@@ -74,7 +76,7 @@ function DetailDoctorRow({
   );
 }
 
-function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive }: DaysProps) {
+function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive, onAssignDoctors }: DaysProps) {
   const { state } = useStore();
   const [activeDay, setActiveDay] = useState<DayKey>(() => {
     const jsDay = new Date().getDay();
@@ -87,6 +89,19 @@ function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive }: DaysProps)
   const [detailLocation, setDetailLocation] = useState<string | null>(null);
   const [selectedSpeciality, setSelectedSpeciality] = useState<string | null>(null);
   const [profileDoctor, setProfileDoctor] = useState<Doctor | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Call onAssignDoctors when picker should open
+  useEffect(() => {
+    if (onAssignDoctors) {
+      (window as any).__openDaysPicker = () => setPickerOpen(true);
+    }
+    return () => {
+      if ((window as any).__openDaysPicker) {
+        delete (window as any).__openDaysPicker;
+      }
+    };
+  }, [onAssignDoctors]);
 
   useEffect(() => {
     setSelectedSpeciality(null);
@@ -305,6 +320,11 @@ function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive }: DaysProps)
           setDetailLocation(null);
           setFilterOpen(false);
         }}
+      />
+      <DayDoctorPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        day={activeDay}
       />
       <DoctorDetailsDialog
         doctor={profileDoctor}

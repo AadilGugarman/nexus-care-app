@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Loader2 } from 'lucide-react';
+import { LogoutConfirmationDialog } from './LogoutConfirmationDialog';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -21,13 +22,10 @@ export function LogoutButton({
 }: LogoutButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  async function handleLogout() {
-    const confirmed = confirm('Are you sure you want to logout?');
-    if (!confirmed) return;
-
+  async function handleConfirmLogout() {
     setLoading(true);
-
     try {
       await AuthService.signOut();
       router.push('/login');
@@ -36,27 +34,36 @@ export function LogoutButton({
       alert('Failed to logout. Please try again.');
     } finally {
       setLoading(false);
+      setShowDialog(false);
     }
   }
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={handleLogout}
-      disabled={loading}
-      className={className}
-    >
-      {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <LogOut className="w-4 h-4" />
-      )}
-      {showText && (
-        <span className="ml-2">
-          {loading ? 'Logging out...' : 'Logout'}
-        </span>
-      )}
-    </Button>
+    <>
+      <Button
+        variant={variant}
+        size={size}
+        onClick={() => setShowDialog(true)}
+        disabled={loading}
+        className={className}
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <LogOut className="w-4 h-4" />
+        )}
+        {showText && (
+          <span className="ml-2">
+            {loading ? 'Logging out...' : 'Logout'}
+          </span>
+        )}
+      </Button>
+      <LogoutConfirmationDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        onConfirm={handleConfirmLogout}
+        isLoading={loading}
+      />
+    </>
   );
 }

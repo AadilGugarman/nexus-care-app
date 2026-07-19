@@ -3,8 +3,22 @@
 // TypeScript types for doctor contribution & approval system
 // ============================================================================
 
-export type RequestStatus = 'pending' | 'approved' | 'rejected';
-export type StatusRequestType = 'mark_inactive' | 'mark_active';
+export type RequestStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "requested_changes";
+export type StatusRequestType = "mark_inactive" | "mark_active";
+
+// Review history entry for audit trail
+export interface ReviewHistoryEntry {
+  action: "approve" | "reject" | "request_changes" | "edit_and_approve";
+  admin_id: string;
+  admin_name: string | null;
+  timestamp: string;
+  notes: string | null;
+  edited_fields?: DoctorChanges;
+}
 
 // ============================================================================
 // Doctor Creation Request
@@ -12,7 +26,7 @@ export type StatusRequestType = 'mark_inactive' | 'mark_active';
 
 export interface DoctorCreationRequest {
   id: number;
-  
+
   // Request metadata
   requested_by: string; // UUID
   requested_at: string; // ISO timestamp
@@ -20,21 +34,24 @@ export interface DoctorCreationRequest {
   reviewed_at: string | null; // ISO timestamp
   status: RequestStatus;
   admin_notes: string | null;
-  
+
   // Proposed doctor data (matching actual doctors table)
-  name: string;                    // doctor_name
-  location: string | null;         // location
-  address: string | null;          // address
-  speciality: string | null;       // speciality
-  qualification: string | null;    // qualification
-  hospital: string | null;         // hospital
-  mobile: string | null;           // mobile
-  notes: string | null;            // notes
-  
+  name: string; // doctor_name
+  location: string | null; // location
+  address: string | null; // address
+  speciality: string | null; // speciality
+  qualification: string | null; // qualification
+  hospital: string | null; // hospital
+  mobile: string | null; // mobile
+  notes: string | null; // notes
+
+  // Full audit trail
+  review_history: ReviewHistoryEntry[];
+
   // Audit trail
   created_at: string;
   updated_at: string;
-  
+
   // Result tracking
   created_doctor_id: number | null;
 }
@@ -66,7 +83,7 @@ export interface DoctorChanges {
 
 export interface DoctorChangeRequest {
   id: number;
-  
+
   // Request metadata
   doctor_id: number;
   requested_by: string; // UUID
@@ -75,11 +92,14 @@ export interface DoctorChangeRequest {
   reviewed_at: string | null; // ISO timestamp
   status: RequestStatus;
   admin_notes: string | null;
-  
+
   // Changed fields
   changes: DoctorChanges;
   change_reason: string | null;
-  
+
+  // Full audit trail
+  review_history: ReviewHistoryEntry[];
+
   // Audit trail
   created_at: string;
   updated_at: string;
@@ -98,7 +118,7 @@ export interface DoctorChangeRequestInput {
 
 export interface DoctorStatusRequest {
   id: number;
-  
+
   // Request metadata
   doctor_id: number;
   requested_by: string; // UUID
@@ -107,11 +127,14 @@ export interface DoctorStatusRequest {
   reviewed_at: string | null; // ISO timestamp
   status: RequestStatus;
   admin_notes: string | null;
-  
+
   // Request details
   request_type: StatusRequestType;
   reason: string;
-  
+
+  // Full audit trail
+  review_history: ReviewHistoryEntry[];
+
   // Audit trail
   created_at: string;
   updated_at: string;
@@ -161,7 +184,7 @@ export interface DoctorStatusRequestWithDetails extends DoctorStatusRequest {
 
 export interface RequestReviewInput {
   request_id: number;
-  action: 'approve' | 'reject';
+  action: "approve" | "reject";
   admin_notes?: string;
   reviewed_by: string; // UUID of admin
 }
@@ -197,7 +220,7 @@ export interface RequestStatistics {
 // ============================================================================
 
 export interface RequestFilters {
-  status?: RequestStatus | 'all';
+  status?: RequestStatus | "all";
   requested_by?: string; // UUID
   date_from?: string; // ISO date
   date_to?: string; // ISO date
