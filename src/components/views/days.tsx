@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Check, CheckCircle2, ChevronDown, Circle, MapPin, Search, X, UserPlus } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, ChevronDown, Circle, MapPin, Search, X, UserPlus, UserMinus } from 'lucide-react';
 import { useStore, getDoctorsForLocationDay, getDoctorVisitInfo, getVisitStatusLabel } from '@/lib/store';
 import { DoctorDetailsDialog } from '@/components/doctor-details-dialog';
 import { LocationPicker } from '@/components/location-picker';
@@ -21,9 +21,11 @@ interface DaysProps {
 function DetailDoctorRow({
   doctor,
   onOpenProfile,
+  onUnassign,
 }: {
   doctor: Doctor;
   onOpenProfile: () => void;
+  onUnassign: () => void;
 }) {
   const { markDoctorVisited, resetDoctorVisit } = useStore();
   const info = getDoctorVisitInfo(doctor);
@@ -72,12 +74,24 @@ function DetailDoctorRow({
           {getVisitStatusLabel(info)}
         </div>
       </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onUnassign();
+        }}
+        className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+        aria-label="Remove from this day"
+        title="Remove from this day"
+      >
+        <UserMinus className="h-4 w-4" />
+      </button>
     </div>
   );
 }
 
 function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive, onAssignDoctors }: DaysProps) {
-  const { state } = useStore();
+  const { state, setDayAssignments } = useStore();
   const [activeDay, setActiveDay] = useState<DayKey>(() => {
     const jsDay = new Date().getDay();
     const map: (DayKey | null)[] = [null, 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', null];
@@ -106,6 +120,21 @@ function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive, onAssignDoct
   useEffect(() => {
     setSelectedSpeciality(null);
   }, [activeDay, detailLocation]);
+
+  const handleUnassign = async (doctor: Doctor) => {
+    try {
+      // Get current assignments for this doctor
+      const currentDays = state.assignments[doctor.id] ?? [];
+      // Remove the active day from assignments
+      const newDays = currentDays.filter(d => d !== activeDay);
+      
+      await setDayAssignments(doctor.id, newDays);
+      
+      toast.success(`${doctor.doctorName} removed from ${DAY_LABELS[activeDay]}`);
+    } catch (error) {
+      // Error toast already shown by store
+    }
+  };
 
   const dayCounts: Record<DayKey, number> = useMemo(() => {
     const result = {} as Record<DayKey, number>;
@@ -207,9 +236,10 @@ function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive, onAssignDoct
             <button
               type="button"
               onClick={() => setDetailLocation(null)}
-              className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="h-9 w-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors shrink-0"
+              aria-label="Back to locations"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
             </button>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -244,17 +274,12 @@ function DaysImpl({ onEditDoctor, onSuggestEdit, onRequestInactive, onAssignDoct
               </div>
             ) : (
               detailDoctors.map((doctor) => (
-                <button
+                <DetailDoctorRow
                   key={doctor.id}
-                  type="button"
-                  onClick={() => setProfileDoctor(doctor)}
-                  className="w-full"
-                >
-                  <DetailDoctorRow
-                    doctor={doctor}
-                    onOpenProfile={() => setProfileDoctor(doctor)}
-                  />
-                </button>
+                  doctor={doctor}
+                  onOpenProfile={() => setProfileDoctor(doctor)}
+                  onUnassign={() => handleUnassign(doctor)}
+                />
               ))
             )}
           </div>

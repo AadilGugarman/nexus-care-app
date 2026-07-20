@@ -44,6 +44,7 @@ import type { Doctor, Route as RouteType } from '@/lib/types';
 import { RouteBottomSheet } from '@/components/route-bottom-sheet';
 import { RouteDoctorPicker } from '@/components/route-doctor-picker';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 function RouteStatusBadge({ info }: { info: ReturnType<typeof getRouteStatusInfo> }) {
   if (info.status === 'active') return null;
@@ -284,7 +285,7 @@ const SortableRouteDoctorItem = memo(function SortableRouteDoctorItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/60 last:border-0 dnd-item touch-none',
+        'flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/60 last:border-0 dnd-item',
         isDragging && 'shadow-xl z-50 opacity-95 rounded-lg border-2 border-indigo-400 dark:border-indigo-500 scale-[1.01]',
         isRouteCompleted && 'bg-slate-50 dark:bg-slate-800/40',
       )}
@@ -345,6 +346,8 @@ function RoutesImpl() {
   const [editingRoute, setEditingRoute] = useState<RouteType | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerRouteId, setPickerRouteId] = useState<string | null>(null);
+  const [deleteRouteId, setDeleteRouteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const locationsWithRoutes = useMemo(() => {
     const locs = new Set(state.routes.map((r) => r.location));
@@ -356,8 +359,13 @@ function RoutesImpl() {
   }, [state.doctors]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { 
+      activationConstraint: { 
+        delay: 250, 
+        tolerance: 5 
+      } 
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -370,6 +378,21 @@ function RoutesImpl() {
     setEditingRoute(null);
     setFormOpen(true);
   }, []);
+
+  const handleDeleteRoute = async () => {
+    if (!deleteRouteId) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteRoute(deleteRouteId);
+      toast.success('Route deleted');
+      setDeleteRouteId(null);
+    } catch (error) {
+      // Error toast already shown by store
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     (window as typeof window & { __openRouteSheet?: () => void }).__openRouteSheet =
@@ -419,9 +442,10 @@ function RoutesImpl() {
             <button
               type="button"
               onClick={() => setSelectedRoute(null)}
-              className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+              className="h-9 w-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors shrink-0"
+              aria-label="Back to routes"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
             </button>
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50 truncate">
@@ -442,12 +466,13 @@ function RoutesImpl() {
         </div>
 
         {/* Scrollable Doctor List */}
-        <div className="min-h-0 flex-1">
+        <div className="min-h-0 flex-1 -mx-4">
           <div 
-            className="card-clean h-full overflow-y-auto overscroll-contain"
+            className="card-clean h-full overflow-y-auto overscroll-contain mx-4"
             style={{
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-y',
+              overscrollBehavior: 'contain',
             }}
           >
             {doctors.length === 0 ? (
@@ -535,9 +560,10 @@ function RoutesImpl() {
           <button
             type="button"
             onClick={() => setSelectedLocation(null)}
-            className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+            className="h-9 w-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors shrink-0"
+            aria-label="Back to all locations"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
           <div>
             <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedLocation}</h1>
@@ -584,14 +610,7 @@ function RoutesImpl() {
                     setEditingRoute(route);
                     setFormOpen(true);
                   }}
-                  onDelete={async () => {
-                    try {
-                      await deleteRoute(route.id);
-                      toast.success('Route deleted');
-                    } catch (error) {
-                      // Error toast already shown by store
-                    }
-                  }}
+                  onDelete={() => setDeleteRouteId(route.id)}
                   onAddDoctors={() => openPicker(route.id)}
                 />
               ))}
@@ -630,6 +649,57 @@ function RoutesImpl() {
             routeId={pickerRouteId}
           />
         )}
+
+        {/* Delete Route Confirmation Dialog */}
+        <Dialog open={!!deleteRouteId} onOpenChange={(open) => !open && setDeleteRouteId(null)}>
+          <DialogContent className="max-w-md">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                  Delete Route?
+                </h2>
+                <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+                  Are you sure you want to delete{' '}
+                  <span className="font-bold text-slate-900 dark:text-slate-50">
+                    {state.routes.find(r => r.id === deleteRouteId)?.name}
+                  </span>
+                  ?
+                </p>
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+                  This action cannot be undone. The route and its doctor assignments will be permanently removed.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteRouteId(null)}
+                  disabled={isDeleting}
+                  className="px-5 h-11 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteRoute}
+                  disabled={isDeleting}
+                  className="px-5 h-11 rounded-lg text-sm font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50 flex items-center gap-2 min-w-[100px] justify-center"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
