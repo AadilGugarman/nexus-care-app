@@ -2,6 +2,11 @@
 -- WARNING: This will REPLACE current data in `doctors` and `route_doctors`.
 -- Run in Supabase SQL editor or psql. Ensure backups exist (doctors_backup, route_doctors_backup).
 
+
+-- --  FOR CREATING BACKUPS
+--  CREATE TABLE IF NOT EXISTS doctors_backup AS TABLE doctors WITH DATA;
+-- -- CREATE TABLE IF NOT EXISTS route_doctors_backup AS TABLE route_doctors WITH DATA;
+
 BEGIN;
 
 -- Validate backups exist
