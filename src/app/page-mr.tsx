@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Plus, Route } from "lucide-react";
+import { Plus, Route, CalendarPlus } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { Header } from "@/components/header";
 import { Dashboard } from "@/components/views/dashboard";
@@ -162,7 +162,7 @@ export function MRDashboard() {
   }
 
   const fabConfig = useMemo(() => {
-    if (activeTab === "dashboard" || activeTab === "settings") return null;
+    if (activeTab === "dashboard" || activeTab === "settings" || activeTab === "today") return null;
     if (activeTab === "routes") {
       return {
         icon: <Route className="h-6 w-6" />,
@@ -172,7 +172,7 @@ export function MRDashboard() {
     }
     if (activeTab === "days") {
       return {
-        icon: <Plus className="h-6 w-6" />,
+        icon: <CalendarPlus className="h-6 w-6" />,
         onClick: () => {
           if ((window as any).__openDaysPicker) {
             (window as any).__openDaysPicker();

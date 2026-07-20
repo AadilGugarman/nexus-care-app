@@ -10,43 +10,46 @@
 
 :root,
 :root[data-font-size="default"] {
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
+  --text-xs: 0.8125rem;  /* 13px - up from 12px */
+  --text-sm: 0.9375rem;  /* 15px - up from 14px */
+  --text-base: 1.0625rem; /* 17px - up from 16px */
+  --text-lg: 1.1875rem;  /* 19px - up from 18px */
+  --text-xl: 1.3125rem;  /* 21px - up from 20px */
+  --text-2xl: 1.5625rem; /* 25px - up from 24px */
+  --text-3xl: 1.9375rem; /* 31px - up from 30px */
 }
 
 :root[data-font-size="small"] {
-  --text-xs: 0.72rem;
-  --text-sm: 0.825rem;
-  --text-base: 0.95rem;
-  --text-lg: 1.05rem;
-  --text-xl: 1.18rem;
-  --text-2xl: 1.4rem;
-  --text-3xl: 1.72rem;
+  /* Old Extra Large becomes new Small (minimum readable) */
+  --text-xs: 0.6875rem;  /* 11px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-lg: 1.0625rem;  /* 17px */
+  --text-xl: 1.1875rem;  /* 19px */
+  --text-2xl: 1.4375rem; /* 23px */
+  --text-3xl: 1.8125rem; /* 29px */
 }
 
 :root[data-font-size="large"] {
-  --text-xs: 0.8rem;
-  --text-sm: 0.94rem;
-  --text-base: 1.06rem;
-  --text-lg: 1.2rem;
-  --text-xl: 1.34rem;
-  --text-2xl: 1.62rem;
-  --text-3xl: 2rem;
+  /* One step larger than Default */
+  --text-xs: 0.9375rem;  /* 15px */
+  --text-sm: 1.0625rem;  /* 17px */
+  --text-base: 1.1875rem; /* 19px */
+  --text-lg: 1.3125rem;  /* 21px */
+  --text-xl: 1.4375rem;  /* 23px */
+  --text-2xl: 1.75rem;   /* 28px */
+  --text-3xl: 2.1875rem; /* 35px */
 }
 
 :root[data-font-size="extra-large"] {
-  --text-xs: 0.86rem;
-  --text-sm: 1rem;
-  --text-base: 1.12rem;
-  --text-lg: 1.28rem;
-  --text-xl: 1.42rem;
-  --text-2xl: 1.74rem;
-  --text-3xl: 2.12rem;
+  /* Largest option for maximum accessibility */
+  --text-xs: 1.0625rem;  /* 17px */
+  --text-sm: 1.1875rem;  /* 19px */
+  --text-base: 1.3125rem; /* 21px */
+  --text-lg: 1.5rem;     /* 24px */
+  --text-xl: 1.6875rem;  /* 27px */
+  --text-2xl: 2rem;      /* 32px */
+  --text-3xl: 2.5rem;    /* 40px */
 }
 
 @layer base {

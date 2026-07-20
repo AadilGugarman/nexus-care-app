@@ -215,7 +215,15 @@ function SettingsImpl({ onBack }: SettingsProps) {
                       <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
                         {label}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
+                      <div 
+                        className={cn(
+                          "font-bold text-slate-600 dark:text-slate-300 mt-1",
+                          key === "small" && "text-base",
+                          key === "default" && "text-lg",
+                          key === "large" && "text-xl",
+                          key === "extra-large" && "text-2xl",
+                        )}
+                      >
                         {sample}
                       </div>
                     </div>

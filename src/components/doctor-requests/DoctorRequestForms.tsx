@@ -71,11 +71,11 @@ export function NewDoctorRequestForm({ onSuccess, onCancel }: NewDoctorFormProps
   if (success) {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-emerald-500" />
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
-        <p className="text-slate-400">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Request Submitted!</h3>
+        <p className="text-slate-600 dark:text-slate-400">
           Your new doctor request has been submitted for admin approval.
         </p>
       </div>
@@ -87,93 +87,93 @@ export function NewDoctorRequestForm({ onSuccess, onCancel }: NewDoctorFormProps
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Name - Required */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-slate-300 mb-1">
-            Doctor Name <span className="text-red-400">*</span>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Doctor Name <span className="text-red-600 dark:text-red-400">*</span>
           </label>
           <input
             type="text"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="Dr. John Smith"
           />
         </div>
 
         {/* Location - Required */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-1">
-            Location <span className="text-red-400">*</span>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Location <span className="text-red-600 dark:text-red-400">*</span>
           </label>
           <input
             type="text"
             required
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="Mumbai"
           />
         </div>
 
         {/* Speciality */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-1">Speciality</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Speciality</label>
           <input
             type="text"
             value={formData.speciality}
             onChange={(e) => setFormData({ ...formData, speciality: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="Cardiologist"
           />
         </div>
 
         {/* Qualification */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-1">Qualification</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Qualification</label>
           <input
             type="text"
             value={formData.qualification}
             onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="MD, MBBS"
           />
         </div>
 
         {/* Hospital */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-1">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Hospital
           </label>
           <input
             type="text"
             value={formData.hospital}
             onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="City General Hospital"
           />
         </div>
 
         {/* Mobile */}
         <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-1">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Mobile
           </label>
           <input
             type="tel"
             value={formData.mobile}
             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             placeholder="+91 98765 43210"
           />
         </div>
 
         {/* Address */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-slate-300 mb-1">Address</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Address</label>
           <textarea
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             rows={2}
             placeholder="123 Medical Plaza, Floor 2"
           />
@@ -181,11 +181,11 @@ export function NewDoctorRequestForm({ onSuccess, onCancel }: NewDoctorFormProps
 
         {/* Notes */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-slate-300 mb-1">Notes</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Notes</label>
           <textarea
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
             rows={3}
             placeholder="Additional information about this doctor..."
           />
@@ -194,7 +194,7 @@ export function NewDoctorRequestForm({ onSuccess, onCancel }: NewDoctorFormProps
 
       {/* Actions */}
       <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={submitting} className="flex-1 bg-blue-600 hover:bg-blue-700">
+        <Button type="submit" disabled={submitting} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
           {submitting ? 'Submitting...' : 'Submit Request'}
         </Button>
         {onCancel && (
@@ -275,11 +275,11 @@ export function EditDoctorRequestForm({ doctor, onSuccess, onCancel }: EditDocto
   if (success) {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-emerald-500" />
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
-        <p className="text-slate-400">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Request Submitted!</h3>
+        <p className="text-slate-600 dark:text-slate-400">
           Your edit request has been submitted for admin approval.
         </p>
       </div>
@@ -288,11 +288,11 @@ export function EditDoctorRequestForm({ doctor, onSuccess, onCancel }: EditDocto
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
-        <p className="text-sm text-blue-300">
+      <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-lg p-3 mb-4">
+        <p className="text-sm text-indigo-900 dark:text-indigo-300">
           <strong>Current Doctor:</strong> {doctor.doctor_name}
         </p>
-        <p className="text-xs text-blue-400 mt-1">
+        <p className="text-xs text-indigo-700 dark:text-indigo-400 mt-1">
           Modify the fields you want to change. Only modified fields will be submitted for approval.
         </p>
       </div>
@@ -339,13 +339,13 @@ export function EditDoctorRequestForm({ doctor, onSuccess, onCancel }: EditDocto
 
       {/* Change Reason */}
       <div>
-        <label className="block text-sm font-semibold text-slate-300 mb-1">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
           Reason for Changes (Optional)
         </label>
         <textarea
           value={changeReason}
           onChange={(e) => setChangeReason(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
           rows={3}
           placeholder="Explain why these changes are needed..."
         />
@@ -353,15 +353,15 @@ export function EditDoctorRequestForm({ doctor, onSuccess, onCancel }: EditDocto
 
       {/* Summary of Changes */}
       {Object.keys(changes).length > 0 && (
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <div className="text-sm font-semibold text-slate-300 mb-2">Changes Summary:</div>
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+          <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Changes Summary:</div>
           <div className="space-y-1">
             {Object.entries(changes).map(([field, change]) => (
-              <div key={field} className="text-xs text-slate-400 flex items-center gap-2">
+              <div key={field} className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
                 <span className="capitalize">{field.replace(/_/g, ' ')}:</span>
-                <span className="line-through text-red-400">{change.old || '(empty)'}</span>
+                <span className="line-through text-red-600 dark:text-red-400">{change.old || '(empty)'}</span>
                 <span>→</span>
-                <span className="text-emerald-400">{change.new || '(empty)'}</span>
+                <span className="text-emerald-600 dark:text-emerald-400">{change.new || '(empty)'}</span>
               </div>
             ))}
           </div>
@@ -401,17 +401,17 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-slate-300 mb-1">
+      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
         {label}
-        {modified && <span className="ml-2 text-xs text-yellow-400">(modified)</span>}
+        {modified && <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">(modified)</span>}
       </label>
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full px-3 py-2 rounded-lg bg-slate-900 border ${
-          modified ? 'border-yellow-500' : 'border-slate-700'
-        } text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        className={`w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border ${
+          modified ? 'border-amber-500 dark:border-amber-500' : 'border-slate-300 dark:border-slate-700'
+        } text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors`}
       />
     </div>
   );
@@ -473,11 +473,11 @@ export function DoctorStatusRequestForm({ doctor, onSuccess, onCancel }: StatusR
   if (success) {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-emerald-500" />
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
-        <p className="text-slate-400">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Request Submitted!</h3>
+        <p className="text-slate-600 dark:text-slate-400">
           Your status change request has been submitted for admin approval.
         </p>
       </div>
@@ -486,38 +486,38 @@ export function DoctorStatusRequestForm({ doctor, onSuccess, onCancel }: StatusR
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
-        <div className="text-sm font-semibold text-white mb-2">Status Change Request</div>
-        <div className="text-sm text-slate-300">
+      <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/30 rounded-lg p-4">
+        <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Status Change Request</div>
+        <div className="text-sm text-slate-700 dark:text-slate-300">
           <strong>Doctor:</strong> {doctor.doctor_name}
         </div>
-        <div className="text-sm text-slate-300 mt-1">
+        <div className="text-sm text-slate-700 dark:text-slate-300 mt-1">
           <strong>Current Status:</strong>{' '}
           {isCurrentlyActive ? (
-            <span className="text-emerald-400">Active</span>
+            <span className="text-emerald-600 dark:text-emerald-400">Active</span>
           ) : (
-            <span className="text-red-400">Inactive</span>
+            <span className="text-red-600 dark:text-red-400">Inactive</span>
           )}
         </div>
-        <div className="text-sm text-slate-300 mt-1">
+        <div className="text-sm text-slate-700 dark:text-slate-300 mt-1">
           <strong>Requested Change:</strong>{' '}
           {requestType === 'mark_inactive' ? (
-            <span className="text-orange-400">Mark as Inactive</span>
+            <span className="text-orange-600 dark:text-orange-400">Mark as Inactive</span>
           ) : (
-            <span className="text-emerald-400">Mark as Active</span>
+            <span className="text-emerald-600 dark:text-emerald-400">Mark as Active</span>
           )}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-slate-300 mb-1">
-          Reason <span className="text-red-400">*</span>
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+          Reason <span className="text-red-600 dark:text-red-400">*</span>
         </label>
         <textarea
           required
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-colors"
           rows={4}
           placeholder={
             requestType === 'mark_inactive'

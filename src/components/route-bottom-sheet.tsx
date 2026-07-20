@@ -156,11 +156,11 @@ function RouteBottomSheetImpl({
                 >
                   {location || 'No location selected'}
                 </div>
-                <div className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  {location && doctorCount > 0
-                    ? `${doctorCount} ${doctorCount === 1 ? 'Doctor' : 'Doctors'} available`
-                    : 'Search and choose from the list below'}
-                </div>
+                {location && doctorCount > 0 && (
+                  <div className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                    {doctorCount} {doctorCount === 1 ? 'Doctor' : 'Doctors'} available
+                  </div>
+                )}
               </div>
             </div>
 

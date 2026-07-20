@@ -23,6 +23,28 @@ interface DoctorItemProps {
   hideDayButton?: boolean; // New prop to hide day assignment button
 }
 
+// Helper function to format last visit date
+function formatLastVisit(visitInfo: ReturnType<typeof getDoctorVisitInfo>): string {
+  if (!visitInfo.isVisited || !visitInfo.lastVisitDate) {
+    return 'Never';
+  }
+  
+  const daysSince = visitInfo.daysSinceLastVisit ?? 0;
+  
+  if (daysSince === 0) {
+    return 'Today';
+  } else if (daysSince === 1) {
+    return 'Yesterday';
+  } else {
+    // Format as "19 Jul 2026"
+    return visitInfo.lastVisitDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+}
+
 export function DoctorItem({
   doctor,
   assignedDays,
@@ -86,7 +108,15 @@ export function DoctorItem({
           {isRouteCompleted && <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
         </div>
 
-        {assignedDays.length > 0 && (
+        {/* Last Visit Information - Only show when hideDayButton is true (Doctors screen) AND doctor has been visited */}
+        {hideDayButton && visitInfo.isVisited && (
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Last Visit: {formatLastVisit(visitInfo)}
+          </div>
+        )}
+
+        {/* Day Assignment Badges - Only show when hideDayButton is false (other screens) */}
+        {!hideDayButton && assignedDays.length > 0 && (
           <div className="flex items-center gap-[3px] mt-1 flex-nowrap overflow-hidden whitespace-nowrap">
             {assignedDays.map((d) => (
               <span

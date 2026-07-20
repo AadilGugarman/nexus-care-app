@@ -73,6 +73,38 @@ function DashboardImpl({ onNavigate, onAddDoctor, onCreateRoute, onExport }: Das
 
       <div>
         <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-1">
+          Doctor Stats
+        </h2>
+        <div className="grid grid-cols-2 gap-2">
+          <StatCard
+            label="Total Doctors"
+            value={stats.total}
+            icon={<Users className="h-4 w-4" />}
+            color="violet"
+          />
+          <StatCard
+            label="Locations"
+            value={stats.locations}
+            icon={<MapPin className="h-4 w-4" />}
+            color="cyan"
+          />
+          <StatCard
+            label="Unassigned"
+            value={stats.unassigned}
+            icon={<UserX className="h-4 w-4" />}
+            color="orange"
+          />
+          <StatCard
+            label={isSunday ? 'Sunday (off)' : `${todayLabel}'s Route`}
+            value={isSunday ? '—' : stats.todayCount}
+            icon={<CalendarDays className="h-4 w-4" />}
+            color="teal"
+          />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-1">
           Doctor Visit Tracking
         </h2>
         <div className="grid grid-cols-2 gap-2">
@@ -139,38 +171,6 @@ function DashboardImpl({ onNavigate, onAddDoctor, onCreateRoute, onExport }: Das
             {stats.routeStats.recentlyCompleted} route{stats.routeStats.recentlyCompleted === 1 ? '' : 's'} completed recently
           </div>
         )}
-      </div>
-
-      <div>
-        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-1">
-          Doctor Stats
-        </h2>
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard
-            label="Total Doctors"
-            value={stats.total}
-            icon={<Users className="h-4 w-4" />}
-            color="violet"
-          />
-          <StatCard
-            label="Locations"
-            value={stats.locations}
-            icon={<MapPin className="h-4 w-4" />}
-            color="cyan"
-          />
-          <StatCard
-            label="Unassigned"
-            value={stats.unassigned}
-            icon={<UserX className="h-4 w-4" />}
-            color="orange"
-          />
-          <StatCard
-            label={isSunday ? 'Sunday (off)' : `${todayLabel}'s Route`}
-            value={isSunday ? '—' : stats.todayCount}
-            icon={<CalendarDays className="h-4 w-4" />}
-            color="teal"
-          />
-        </div>
       </div>
 
       <div>

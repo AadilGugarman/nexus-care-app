@@ -12,23 +12,19 @@ function LocationsListImpl({ onSelectLocation }: LocationsListProps) {
   const { state } = useStore();
 
   const locationStats = useMemo(() => {
-    const map = new Map<string, { total: number; scheduled: number }>();
+    const map = new Map<string, number>();
     
     for (const d of state.doctors) {
       if (!map.has(d.location)) {
-        map.set(d.location, { total: 0, scheduled: 0 });
+        map.set(d.location, 0);
       }
-      const stats = map.get(d.location)!;
-      stats.total++;
-      if ((state.assignments[d.id] ?? []).length > 0) {
-        stats.scheduled++;
-      }
+      map.set(d.location, map.get(d.location)! + 1);
     }
     
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([location, stats]) => ({ location, ...stats }));
-  }, [state.doctors, state.assignments]);
+      .map(([location, total]) => ({ location, total }));
+  }, [state.doctors]);
 
   return (
     <div className="space-y-3 pb-2">
@@ -44,7 +40,7 @@ function LocationsListImpl({ onSelectLocation }: LocationsListProps) {
 
       {/* Locations List */}
       <div className="space-y-2">
-        {locationStats.map(({ location, total, scheduled }) => (
+        {locationStats.map(({ location, total }) => (
           <button
             key={location}
             type="button"
@@ -64,7 +60,6 @@ function LocationsListImpl({ onSelectLocation }: LocationsListProps) {
                 </div>
                 <div className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                   {total} {total === 1 ? 'Doctor' : 'Doctors'}
-                  {scheduled > 0 && ` · ${scheduled} Scheduled`}
                 </div>
               </div>
 

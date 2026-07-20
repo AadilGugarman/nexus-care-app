@@ -407,10 +407,13 @@ function RoutesImpl() {
     };
 
     return (
+
+
       <div
-        className="flex min-h-0 flex-col overflow-hidden"
+        className="flex min-h-0 flex-col"
         style={{ height: 'calc(100dvh - 13rem)' }}
       >
+        {/* Fixed Header */}
         <div className="shrink-0 space-y-4 pb-4">
           <div className="flex items-center gap-2">
             <button
@@ -438,37 +441,42 @@ function RoutesImpl() {
 
         </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <div className="card-clean flex h-full min-h-0 flex-col overflow-hidden">
+        {/* Scrollable Doctor List */}
+        <div className="min-h-0 flex-1">
+          <div 
+            className="card-clean h-full overflow-y-auto overscroll-contain"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+            }}
+          >
             {doctors.length === 0 ? (
               <div className="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500 dark:text-slate-400">
                 No doctors in this route yet.
               </div>
             ) : (
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDoctorDragEnd}>
-                  <SortableContext items={doctors.map((d) => d.id)} strategy={verticalListSortingStrategy}>
-                    <div>
-                      {doctors.map((d, idx) => (
-                        <SortableRouteDoctorItem
-                          key={d.id}
-                          doctor={d}
-                          index={idx}
-                          isRouteCompleted={isRouteCompleted}
-                          onRemove={async () => {
-                            try {
-                              await removeDoctorFromRoute(routeId, d.id);
-                              toast.success('Doctor removed from route');
-                            } catch (error) {
-                              // Error toast already shown by store
-                            }
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDoctorDragEnd}>
+                <SortableContext items={doctors.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+                  <div>
+                    {doctors.map((d, idx) => (
+                      <SortableRouteDoctorItem
+                        key={d.id}
+                        doctor={d}
+                        index={idx}
+                        isRouteCompleted={isRouteCompleted}
+                        onRemove={async () => {
+                          try {
+                            await removeDoctorFromRoute(routeId, d.id);
+                            toast.success('Doctor removed from route');
+                          } catch (error) {
+                            // Error toast already shown by store
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         </div>

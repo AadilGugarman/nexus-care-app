@@ -85,11 +85,6 @@ function LocationDoctorsImpl({
     return results;
   }, [locationDoctors, debouncedSearch, selectedSpeciality, sortBy]);
 
-  // Stats
-  const scheduledCount = useMemo(() => {
-    return locationDoctors.filter((d) => (state.assignments[d.id] ?? []).length > 0).length;
-  }, [locationDoctors, state.assignments]);
-
   const handleDelete = useCallback(
     async (id: number) => {
       if (confirmDelete === id) {
@@ -145,7 +140,7 @@ function LocationDoctorsImpl({
               {location}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-              {locationDoctors.length} doctors · {scheduledCount} scheduled
+              {locationDoctors.length} Doctors
             </p>
           </div>
         </div>
