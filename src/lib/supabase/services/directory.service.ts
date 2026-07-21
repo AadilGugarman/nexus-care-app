@@ -62,6 +62,7 @@ export class DirectoryService {
       .from('doctors')
       .select('id, doctor_name, speciality, location, address, mobile, hospital, qualification')
       .eq('public_visible', true)
+      .eq('is_active', true)
       .order('doctor_name');
 
     // Apply search filter
@@ -82,7 +83,13 @@ export class DirectoryService {
 
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('getPublicDoctors error:', error);
+      throw error;
+    }
+    
+    console.log(`✅ getPublicDoctors returned ${data?.length || 0} doctors`);
+    
     return (data as any[])?.map(d => ({
       id: d.id,
       doctor_name: d.doctor_name,
@@ -97,7 +104,7 @@ export class DirectoryService {
 
   /**
    * Get single public doctor by ID
-   * Only returns if public_visible
+   * Only returns if public_visible and is_active
    */
   static async getPublicDoctorById(doctorId: number): Promise<PublicDoctor | null> {
     const { data, error } = await supabase
@@ -105,6 +112,7 @@ export class DirectoryService {
       .select('id, doctor_name, speciality, location, address, mobile, hospital, qualification')
       .eq('id', doctorId)
       .eq('public_visible', true)
+      .eq('is_active', true)
       .maybeSingle();
 
     if (error) throw error;
@@ -130,6 +138,7 @@ export class DirectoryService {
       .from('doctors')
       .select('speciality')
       .eq('public_visible', true)
+      .eq('is_active', true)
       .not('speciality', 'is', null);
 
     if (error) throw error;
@@ -149,7 +158,8 @@ export class DirectoryService {
     const { data, error } = await supabase
       .from('doctors')
       .select('location')
-      .eq('public_visible', true);
+      .eq('public_visible', true)
+      .eq('is_active', true);
 
     if (error) throw error;
 
@@ -162,6 +172,55 @@ export class DirectoryService {
   }
 
   /**
+   * Get public directory statistics
+   * Returns live counts of doctors, locations, and specialities
+   */
+  static async getPublicStatistics(): Promise<{
+    totalDoctors: number;
+    totalLocations: number;
+    totalSpecialities: number;
+  }> {
+    try {
+      // Get all public visible and active doctors
+      const { data: doctors, error } = await supabase
+        .from('doctors')
+        .select('location, speciality')
+        .eq('public_visible', true)
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const doctorsList = (doctors as any[]) || [];
+      
+      // Count unique locations
+      const locations = new Set<string>();
+      doctorsList.forEach((d: any) => {
+        if (d.location) locations.add(d.location);
+      });
+
+      // Count unique specialities
+      const specialities = new Set<string>();
+      doctorsList.forEach((d: any) => {
+        if (d.speciality) specialities.add(d.speciality);
+      });
+
+      return {
+        totalDoctors: doctorsList.length,
+        totalLocations: locations.size,
+        totalSpecialities: specialities.size,
+      };
+    } catch (error) {
+      console.error('Failed to fetch public statistics:', error);
+      // Return zeros on error instead of throwing
+      return {
+        totalDoctors: 0,
+        totalLocations: 0,
+        totalSpecialities: 0,
+      };
+    }
+  }
+
+  /**
    * Track directory view
    */
   static async trackDirectoryView(metadata?: {
@@ -169,14 +228,15 @@ export class DirectoryService {
     referrer?: string;
   }): Promise<void> {
     try {
-      await supabase
-        .from('directory_analytics')
-        .insert({
-          event_type: 'directory_view',
-          doctor_id: null,
-          user_agent: metadata?.userAgent || null,
-          referrer: metadata?.referrer || null,
-        } as any);
+      // Skip analytics tracking for now - requires RLS policy updates
+      // await supabase
+      //   .from('directory_analytics')
+      //   .insert({
+      //     event_type: 'directory_view',
+      //     doctor_id: null,
+      //     user_agent: metadata?.userAgent || null,
+      //     referrer: metadata?.referrer || null,
+      //   } as any);
     } catch (error) {
       // Don't throw - analytics failures shouldn't break the app
       console.error('Failed to track directory view:', error);
@@ -194,14 +254,15 @@ export class DirectoryService {
     }
   ): Promise<void> {
     try {
-      await supabase
-        .from('directory_analytics')
-        .insert({
-          event_type: 'doctor_profile_view',
-          doctor_id: doctorId,
-          user_agent: metadata?.userAgent || null,
-          referrer: metadata?.referrer || null,
-        } as any);
+      // Skip analytics tracking for now - requires RLS policy updates
+      // await supabase
+      //   .from('directory_analytics')
+      //   .insert({
+      //     event_type: 'doctor_profile_view',
+      //     doctor_id: doctorId,
+      //     user_agent: metadata?.userAgent || null,
+      //     referrer: metadata?.referrer || null,
+      //   } as any);
     } catch (error) {
       // Don't throw - analytics failures shouldn't break the app
       console.error('Failed to track doctor view:', error);

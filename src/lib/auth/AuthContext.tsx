@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
+import { NavigationStateManager } from '@/lib/navigation';
 
 // ============================================================================
 // Types
@@ -47,8 +48,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
-  // Load session on mount
+  // Load session on mount - with session persistence check
   useEffect(() => {
+    // Check if we have a cached session first (reduces flash)
+    const checkCachedSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Immediately set user to prevent flash
+          setState(prev => ({
+            ...prev,
+            user: session.user,
+            session,
+            loading: true,
+          }));
+        }
+      } catch (error) {
+        console.error('Error checking cached session:', error);
+      }
+    };
+    
+    checkCachedSession();
     loadSession();
   }, []);
 
@@ -57,6 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Save current URL on sign out for restoration after login
+      if (event === 'SIGNED_OUT' && typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        // Only save if not on auth pages
+        if (!currentPath.startsWith('/login') && 
+            !currentPath.startsWith('/signup') &&
+            !currentPath.startsWith('/access-denied')) {
+          NavigationStateManager.saveReturnUrl(currentPath);
+        }
+      }
+
       if (session?.user) {
         // Keep loading=true until profile loads
         setState((prev) => ({
@@ -212,6 +243,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
 
       if (error) throw error;
+
+      // Clear navigation state on manual logout
+      NavigationStateManager.clearState();
 
       setState({
         user: null,

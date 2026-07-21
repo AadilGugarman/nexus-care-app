@@ -5,14 +5,8 @@ import { Loader2, LogOut } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface LogoutConfirmationDialogProps {
   open: boolean;
@@ -29,62 +23,49 @@ export function LogoutConfirmationDialog({
 }: LogoutConfirmationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-6 border border-slate-700 bg-slate-900 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
-        <DialogHeader className="space-y-4 text-center sm:text-left">
-          {/* Large circular icon with gradient */}
-          <div className="flex justify-center sm:justify-start">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/10 flex items-center justify-center">
-              <LogOut className="h-8 w-8 text-red-500" />
-            </div>
+      <DialogContent className="max-w-sm p-6">
+        <div className="space-y-5">
+          {/* Icon Badge */}
+          <div className="mx-auto h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center">
+            <LogOut className="h-6 w-6 text-rose-600 dark:text-rose-400" />
           </div>
-          <div className="space-y-2">
-            <DialogTitle className="text-2xl sm:text-2xl font-bold text-slate-50">
-              Sign Out
-            </DialogTitle>
-            <DialogDescription className="text-sm sm:text-base text-slate-400">
-              Are you sure you want to sign out of your account?
-              <br />
-              You'll need to sign in again to continue.
-            </DialogDescription>
-          </div>
-        </DialogHeader>
 
-        <div className="mt-6">
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-3">
-            <DialogClose asChild>
-              <Button
-                variant="outline"
-                disabled={isLoading}
-                className="flex-1 h-12 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white transition-all"
-              >
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button
+          {/* Title and Description */}
+          <div className="text-center space-y-2">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+              Sign Out?
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              You'll need to sign in again to continue using the app.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-lg shadow-red-900/20 transition-all"
+              className="w-full h-11 rounded-lg text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Signing out...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing Out...
                 </>
               ) : (
-                <>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </>
+                'Sign Out'
               )}
-            </Button>
-          </div>
-          
-          {/* Subtle divider and security note */}
-          <div className="mt-6 pt-4 border-t border-slate-700/50">
-            <p className="text-xs text-slate-500 text-center sm:text-left">
-              Your session will end immediately.
-            </p>
+            </button>
+            <DialogClose asChild>
+              <button
+                type="button"
+                disabled={isLoading}
+                className="w-full h-11 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </DialogClose>
           </div>
         </div>
       </DialogContent>

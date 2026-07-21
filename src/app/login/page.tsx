@@ -1,16 +1,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService, useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LogIn, Loader2 } from 'lucide-react';
+import { NavigationStateManager } from '@/lib/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, role, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,12 +26,9 @@ export default function LoginPage() {
       hasRedirected.current = true;
       console.log('Already logged in, redirecting...', role);
       
-      // Use window.location for hard redirect
-      if (role === 'admin') {
-        window.location.href = '/admin';
-      } else {
-        window.location.href = '/';
-      }
+      // Get restoration path
+      const restorationPath = NavigationStateManager.getRestorationPath(role);
+      window.location.href = restorationPath;
     }
   }, [user, role, authLoading]);
 
@@ -66,15 +65,12 @@ export default function LoginPage() {
           return;
         }
 
-        // Redirect based on role
+        // Get restoration path based on role and saved state
         const userRole = (data as any)?.role;
-        if (userRole === 'admin') {
-          console.log('Redirecting admin to /admin');
-          window.location.href = '/admin';
-        } else {
-          console.log('Redirecting to home');
-          window.location.href = '/';
-        }
+        const restorationPath = NavigationStateManager.getRestorationPath(userRole);
+        
+        console.log('Redirecting to:', restorationPath);
+        window.location.href = restorationPath;
       } else {
         setError(result.error || 'Failed to sign in');
       }

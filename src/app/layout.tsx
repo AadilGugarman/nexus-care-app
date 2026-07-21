@@ -4,6 +4,7 @@ import { StoreProvider } from '@/lib/store';
 import { AuthProvider } from '@/lib/auth';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { NavigationPersistenceProvider } from '@/components/NavigationPersistenceProvider';
 
 export const metadata: Metadata = {
   title: 'MR Route Planner',
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased">
         <ErrorBoundary>
           <AuthProvider>
-            <StoreProvider>{children}</StoreProvider>
+            <NavigationPersistenceProvider>
+              <StoreProvider>{children}</StoreProvider>
+            </NavigationPersistenceProvider>
           </AuthProvider>
         </ErrorBoundary>
         <Toaster 

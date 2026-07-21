@@ -59,28 +59,13 @@ export default function AdminDashboard() {
   async function loadStats() {
     setLoading(true);
     try {
-      const [
-        doctors,
-        routes,
-        visits,
-        locations,
-        requestStats,
-        visibilityStats,
-        mostViewed,
-      ] = await Promise.all([
+      // Load critical stats first (fast queries)
+      const [doctors, routes, visits, locations] = await Promise.all([
         DoctorsService.getAllDoctors(),
         RoutesService.getAllRoutes(),
         VisitsService.getAllVisits(),
         DoctorsService.getLocations(),
-        getRequestStatistics().catch(() => null),
-        DirectoryService.getDoctorVisibilityStats().catch(() => null),
-        DirectoryService.getMostViewedDoctors(3).catch(() => []),
       ]);
-
-      // Get directory analytics
-      const directoryAnalytics = await DirectoryService.getDirectoryAnalytics(
-        30,
-      ).catch(() => null);
 
       // Count doctors by location
       const doctorsByLocation: Record<string, number> = {};
@@ -103,6 +88,7 @@ export default function AdminDashboard() {
           created_at: d.created_at,
         }));
 
+      // Set initial stats immediately (fast display)
       setStats({
         totalDoctors: doctors.length,
         totalLocations: locations.length,
@@ -110,21 +96,39 @@ export default function AdminDashboard() {
         totalVisits: visits.length,
         recentDoctors,
         doctorsByLocation,
-        requestStats,
-        directoryStats:
-          visibilityStats && directoryAnalytics
-            ? {
-                publicDoctors: visibilityStats.public_visible,
-                directoryViews: directoryAnalytics.total_views,
-                profileViews: directoryAnalytics.profile_views,
-                mostViewed: mostViewed,
-              }
-            : null,
+        requestStats: null, // Load later
+        directoryStats: null, // Load later
       });
-    } catch (err) {
-      // Silent error - stats will show null
-      setStats(null);
-    } finally {
+
+      setLoading(false);
+
+      // Load slower stats in background (non-blocking)
+      Promise.all([
+        getRequestStatistics().catch(() => null),
+        DirectoryService.getDoctorVisibilityStats().catch(() => null),
+        DirectoryService.getMostViewedDoctors(3).catch(() => []),
+        DirectoryService.getDirectoryAnalytics(30).catch(() => null),
+      ]).then(([requestStats, visibilityStats, mostViewed, directoryAnalytics]) => {
+        setStats((prev) => ({
+          ...prev!,
+          requestStats,
+          directoryStats:
+            visibilityStats && directoryAnalytics
+              ? {
+                  publicDoctors: visibilityStats.public_visible,
+                  directoryViews: directoryAnalytics.total_views,
+                  profileViews: directoryAnalytics.profile_views,
+                  mostViewed: mostViewed.map((d) => ({
+                    doctor_id: d.doctor_id,
+                    doctor_name: d.doctor_name,
+                    view_count: d.view_count,
+                  })),
+                }
+              : null,
+        }));
+      });
+    } catch (error) {
+      console.error("Failed to load stats:", error);
       setLoading(false);
     }
   }

@@ -3,8 +3,9 @@
 import { useAuth } from '@/lib/auth';
 import { PublicHomePage } from './page-public';
 import { MRDashboard } from './page-mr';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { NavigationStateManager } from '@/lib/navigation';
 
 // Memoized loading component
 const LoadingScreen = memo(function LoadingScreen() {
@@ -24,16 +25,29 @@ const LoadingScreen = memo(function LoadingScreen() {
 export default function HomePage() {
   const { user, role, loading } = useAuth();
   const router = useRouter();
+  const [shouldRestore, setShouldRestore] = useState(false);
 
-  // Auto-redirect admins to /admin
+  // Check for restoration on mount (only once)
   useEffect(() => {
-    if (!loading && role === 'admin') {
-      router.replace('/admin');
+    if (!loading && user && role) {
+      const restorationPath = NavigationStateManager.getRestorationPath(role);
+      
+      // If restoration path is different from home, redirect
+      if (restorationPath !== '/' && restorationPath !== '/admin') {
+        setShouldRestore(true);
+        router.replace(restorationPath);
+        return;
+      }
+      
+      // If admin and on home, redirect to admin
+      if (role === 'admin' && restorationPath === '/admin') {
+        router.replace('/admin');
+      }
     }
-  }, [loading, role, router]);
+  }, [loading, user, role, router]);
 
   // Loading state
-  if (loading) {
+  if (loading || shouldRestore) {
     return <LoadingScreen />;
   }
 

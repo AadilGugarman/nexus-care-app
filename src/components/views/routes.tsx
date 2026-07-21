@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import toast from 'react-hot-toast';
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import {
   DndContext,
   closestCenter,
@@ -11,15 +11,15 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   ChevronRight,
   MapPin,
@@ -37,38 +37,55 @@ import {
   RotateCcw,
   Check,
   Circle,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useStore, getRouteStatusInfo, getDoctorsInRoute, getRoutesForLocation, getDoctorVisitInfo, getVisitStatusLabel } from '@/lib/store';
-import type { Doctor, Route as RouteType } from '@/lib/types';
-import { RouteBottomSheet } from '@/components/route-bottom-sheet';
-import { RouteDoctorPicker } from '@/components/route-doctor-picker';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+  ArrowUpDown,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  useStore,
+  getRouteStatusInfo,
+  getDoctorsInRoute,
+  getRoutesForLocation,
+  getDoctorVisitInfo,
+  getVisitStatusLabel,
+} from "@/lib/store";
+import type { Doctor, Route as RouteType } from "@/lib/types";
+import { RouteBottomSheet } from "@/components/route-bottom-sheet";
+import { RouteDoctorPicker } from "@/components/route-doctor-picker";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-function RouteStatusBadge({ info }: { info: ReturnType<typeof getRouteStatusInfo> }) {
-  if (info.status === 'active') return null;
+function RouteStatusBadge({
+  info,
+}: {
+  info: ReturnType<typeof getRouteStatusInfo>;
+}) {
+  if (info.status === "active") return null;
   const config = {
     completed: {
       icon: CheckCircle2,
       label: `${info.daysRemaining}d left`,
-      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30',
+      cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
     },
     due: {
       icon: Clock,
-      label: 'Due today',
-      cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30',
+      label: "Due today",
+      cls: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30",
     },
     overdue: {
       icon: AlertCircle,
       label: `Overdue ${Math.abs(info.daysRemaining)}d`,
-      cls: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30',
+      cls: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30",
     },
   }[info.status];
   if (!config) return null;
   const Icon = config.icon;
   return (
-    <span className={cn('inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border', config.cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
+        config.cls,
+      )}
+    >
       <Icon className="h-3 w-3" />
       {config.label}
     </span>
@@ -92,13 +109,13 @@ const RouteListItem = memo(function RouteListItem({
 }) {
   const info = getRouteStatusInfo(route);
   const doctorCount = route.doctorIds.length;
-  const isCompleted = info.status !== 'active';
+  const isCompleted = info.status !== "active";
 
   return (
     <div
       className={cn(
-        'card-clean overflow-hidden',
-        isCompleted && 'border-emerald-200 dark:border-emerald-500/30',
+        "card-clean overflow-hidden",
+        isCompleted && "border-emerald-200 dark:border-emerald-500/30",
       )}
     >
       <button
@@ -108,10 +125,10 @@ const RouteListItem = memo(function RouteListItem({
       >
         <div
           className={cn(
-            'h-9 w-9 rounded-lg flex items-center justify-center shrink-0',
+            "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
             isCompleted
-              ? 'bg-emerald-100 dark:bg-emerald-500/20'
-              : 'bg-indigo-100 dark:bg-indigo-500/20',
+              ? "bg-emerald-100 dark:bg-emerald-500/20"
+              : "bg-indigo-100 dark:bg-indigo-500/20",
           )}
         >
           {isCompleted ? (
@@ -125,9 +142,11 @@ const RouteListItem = memo(function RouteListItem({
             {route.name}
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
-            {doctorCount} doctor{doctorCount === 1 ? '' : 's'}
+            {doctorCount} doctor{doctorCount === 1 ? "" : "s"}
             {info.completedDate && (
-              <span className="ml-1.5">· Done {info.completedDate.toLocaleDateString()}</span>
+              <span className="ml-1.5">
+                · Done {info.completedDate.toLocaleDateString()}
+              </span>
             )}
           </div>
         </div>
@@ -135,12 +154,18 @@ const RouteListItem = memo(function RouteListItem({
         <ChevronRight className="h-5 w-5 text-slate-400 shrink-0" />
       </button>
 
-      <div className="grid grid-cols-3 border-t border-slate-200 dark:border-slate-700">
+      <div className="grid grid-cols-4 border-t border-slate-200 dark:border-slate-700">
         <ActionButton
-          icon={isCompleted ? <RotateCcw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
-          label={isCompleted ? 'Reopen' : 'Complete'}
+          icon={
+            isCompleted ? (
+              <RotateCcw className="h-3.5 w-3.5" />
+            ) : (
+              <Check className="h-3.5 w-3.5" />
+            )
+          }
+          label={isCompleted ? "Reopen" : "Complete"}
           onClick={onComplete}
-          variant={isCompleted ? 'neutral' : 'success'}
+          variant={isCompleted ? "neutral" : "success"}
         />
         <ActionButton
           icon={<UserPlus className="h-3.5 w-3.5" />}
@@ -156,15 +181,14 @@ const RouteListItem = memo(function RouteListItem({
           variant="neutral"
           borderLeft
         />
+        <ActionButton
+          icon={<Trash2 className="h-3.5 w-3.5" />}
+          label="Delete Route"
+          onClick={onDelete}
+          variant="danger"
+          borderLeft
+        />
       </div>
-      <button
-        type="button"
-        onClick={onDelete}
-        className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 border-t border-slate-200 dark:border-slate-700 transition-colors"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-        Delete Route
-      </button>
     </div>
   );
 });
@@ -179,7 +203,7 @@ function ActionButton({
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
-  variant: 'success' | 'primary' | 'neutral';
+  variant: "success" | "primary" | "neutral" | "danger";
   borderLeft?: boolean;
 }) {
   return (
@@ -187,15 +211,21 @@ function ActionButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition-colors',
-        borderLeft && 'border-l border-slate-200 dark:border-slate-700',
-        variant === 'success' && 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10',
-        variant === 'primary' && 'text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10',
-        variant === 'neutral' && 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40',
+        "flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition-colors",
+        borderLeft && "border-l border-slate-200 dark:border-slate-700",
+        variant === "success" &&
+          "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10",
+        variant === "primary" &&
+          "text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10",
+        variant === "neutral" &&
+          "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40",
+        variant === "danger" &&
+          "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10",
       )}
+      title={label}
     >
       {icon}
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
@@ -208,7 +238,14 @@ const SortableRouteListItem = memo(function SortableRouteListItem(props: {
   onDelete: () => void;
   onAddDoctors: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: props.route.id,
   });
 
@@ -221,9 +258,13 @@ const SortableRouteListItem = memo(function SortableRouteListItem(props: {
     <div
       ref={setNodeRef}
       style={style}
-      className={cn('relative', isDragging && 'z-50')}
+      className={cn("relative", isDragging && "z-50")}
     >
-      <div className={cn(isDragging && 'shadow-xl scale-[1.01] opacity-95 rounded-xl')}>
+      <div
+        className={cn(
+          isDragging && "shadow-xl scale-[1.01] opacity-95 rounded-xl",
+        )}
+      >
         <div className="flex items-stretch">
           <button
             type="button"
@@ -247,16 +288,26 @@ const SortableRouteDoctorItem = memo(function SortableRouteDoctorItem({
   doctor,
   index,
   isRouteCompleted,
+  isReorderMode,
   onRemove,
 }: {
   doctor: Doctor;
   index: number;
   isRouteCompleted: boolean;
+  isReorderMode: boolean;
   onRemove: () => void;
 }) {
   const { markDoctorVisited, resetDoctorVisit } = useStore();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: doctor.id,
+    disabled: !isReorderMode,
   });
   const visitInfo = getDoctorVisitInfo(doctor);
   const isVisited = visitInfo.isVisited;
@@ -267,79 +318,176 @@ const SortableRouteDoctorItem = memo(function SortableRouteDoctorItem({
   };
 
   async function toggleVisited() {
+    if (isReorderMode) return; // Disable in reorder mode
     try {
       if (isVisited) {
         await resetDoctorVisit(doctor.id);
-        toast.success('Visit reset');
+        toast.success("Visit reset");
       } else {
         await markDoctorVisited(doctor.id);
-        toast.success('Visit marked');
+        toast.success("Visit marked");
       }
     } catch (error) {
       // Error toast already shown by store
     }
   }
 
+  // Format last visit date
+  function formatLastVisit(): string {
+    if (!visitInfo.lastVisitDate) return "";
+
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const visitDate = visitInfo.lastVisitDate;
+    const isToday = visitDate.toDateString() === today.toDateString();
+    const isYesterday = visitDate.toDateString() === yesterday.toDateString();
+
+    if (isToday) return "Today";
+    if (isYesterday) return "Yesterday";
+
+    return visitDate.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  // Format due status
+  function formatDueStatus(): string {
+    if (!isVisited) return "";
+
+    const daysUntil = visitInfo.daysUntilDue ?? 0;
+
+    if (daysUntil < 0) {
+      return `● Overdue by ${Math.abs(daysUntil)} day${Math.abs(daysUntil) === 1 ? "" : "s"}`;
+    }
+
+    return `● Due in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`;
+  }
+
+  const lastVisitText = formatLastVisit();
+  const dueStatusText = formatDueStatus();
+  const hasVisitInfo = isVisited && (lastVisitText || dueStatusText);
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/60 last:border-0 dnd-item',
-        isDragging && 'shadow-xl z-50 opacity-95 rounded-lg border-2 border-indigo-400 dark:border-indigo-500 scale-[1.01]',
-        isRouteCompleted && 'bg-slate-50 dark:bg-slate-800/40',
+        "flex items-center gap-3 px-3 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/60 last:border-0 transition-colors",
+        isDragging &&
+          "shadow-xl z-50 opacity-95 rounded-lg border-2 border-indigo-400 dark:border-indigo-500 scale-[1.01]",
+        isRouteCompleted && "bg-slate-50 dark:bg-slate-800/40",
+        isReorderMode && !isDragging && "bg-indigo-50/30 dark:bg-indigo-500/5",
+        hasVisitInfo ? "py-2.5" : "py-2",
       )}
     >
-      <button
-        type="button"
-        {...listeners}
-        {...attributes}
-        className="p-1 -ml-1 text-slate-400 dark:text-slate-500 touch-none cursor-grab active:cursor-grabbing"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      {/* Drag Handle - Only visible in reorder mode */}
+      {isReorderMode && (
+        <button
+          type="button"
+          {...listeners}
+          {...attributes}
+          className="p-1 -ml-1 text-indigo-600 dark:text-indigo-400 cursor-grab active:cursor-grabbing"
+          style={{ touchAction: "none" }}
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-5 w-5" />
+        </button>
+      )}
+
       <div className="h-6 w-6 shrink-0 rounded-md bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center">
         {index + 1}
       </div>
-      <button
-        type="button"
-        onClick={toggleVisited}
-        className={cn(
-          'h-8 w-8 rounded-md flex items-center justify-center shrink-0 transition-colors',
-          isVisited
-            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10'
-            : 'text-slate-500 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10',
-        )}
-        aria-label={isVisited ? 'Reset visit' : 'Mark visited'}
-      >
-        {isVisited ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-      </button>
+
+      {/* Visit Toggle Button - Hidden in reorder mode */}
+      {!isReorderMode && (
+        <button
+          type="button"
+          onClick={toggleVisited}
+          className={cn(
+            "h-8 w-8 rounded-md flex items-center justify-center shrink-0 transition-colors",
+            isVisited
+              ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10"
+              : "text-slate-500 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10",
+          )}
+          aria-label={isVisited ? "Reset visit" : "Mark visited"}
+        >
+          {isVisited ? (
+            <CheckCircle2 className="h-4 w-4" />
+          ) : (
+            <Circle className="h-4 w-4" />
+          )}
+        </button>
+      )}
+
       <div className="flex-1 min-w-0">
-        <div className={cn(
-          'font-bold text-sm text-slate-900 dark:text-slate-50 truncate min-w-0',
-          isRouteCompleted && 'line-through text-slate-500',
-        )}>
+        <div
+          className={cn(
+            "font-bold text-sm text-slate-900 dark:text-slate-50 truncate min-w-0",
+            isRouteCompleted && "line-through text-slate-500",
+          )}
+        >
           {doctor.doctorName}
         </div>
-        <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate">
-          {isVisited ? '✓ Visited' : '○ Not Visited'} · {getVisitStatusLabel(visitInfo)}
-        </div>
+
+        {/* Visit Information - Only show if visited */}
+        {!isReorderMode && hasVisitInfo && (
+          <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
+            <span>Last Visit: {lastVisitText}</span>
+            <span>•</span>
+            <span
+              className={cn(
+                visitInfo.status === "overdue" &&
+                  "text-rose-600 dark:text-rose-400",
+                visitInfo.status === "due-today" &&
+                  "text-amber-600 dark:text-amber-400",
+                visitInfo.status === "due-soon" &&
+                  "text-amber-600 dark:text-amber-400",
+              )}
+            >
+              {dueStatusText}
+            </span>
+          </div>
+        )}
+
+        {/* Reorder Mode Hint */}
+        {isReorderMode && (
+          <div className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
+            Drag to reorder
+          </div>
+        )}
       </div>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="h-8 w-8 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
-        aria-label="Remove from route"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
+
+      {/* Remove Button - Hidden in reorder mode */}
+      {!isReorderMode && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="h-8 w-8 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+          aria-label="Remove from route"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
     </div>
   );
 });
 
 function RoutesImpl() {
-  const { state, createRoute, updateRoute, deleteRoute, reorderRoutes, removeDoctorFromRoute, reorderDoctorsInRoute, completeRoute, uncompleteRoute } = useStore();
+  const {
+    state,
+    createRoute,
+    updateRoute,
+    deleteRoute,
+    reorderRoutes,
+    removeDoctorFromRoute,
+    reorderDoctorsInRoute,
+    completeRoute,
+    uncompleteRoute,
+  } = useStore();
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -348,6 +496,7 @@ function RoutesImpl() {
   const [pickerRouteId, setPickerRouteId] = useState<string | null>(null);
   const [deleteRouteId, setDeleteRouteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReorderMode, setIsReorderMode] = useState(false);
 
   const locationsWithRoutes = useMemo(() => {
     const locs = new Set(state.routes.map((r) => r.location));
@@ -355,18 +504,24 @@ function RoutesImpl() {
   }, [state.routes]);
 
   const allLocations = useMemo(() => {
-    return Array.from(new Set(state.doctors.map((d) => d.location))).sort((a, b) => a.localeCompare(b));
+    return Array.from(new Set(state.doctors.map((d) => d.location))).sort(
+      (a, b) => a.localeCompare(b),
+    );
   }, [state.doctors]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { 
-      activationConstraint: { 
-        delay: 250, 
-        tolerance: 5 
-      } 
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
     }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const openPicker = useCallback((routeId: string) => {
@@ -379,13 +534,17 @@ function RoutesImpl() {
     setFormOpen(true);
   }, []);
 
+  const toggleReorderMode = useCallback(() => {
+    setIsReorderMode((prev) => !prev);
+  }, []);
+
   const handleDeleteRoute = async () => {
     if (!deleteRouteId) return;
-    
+
     setIsDeleting(true);
     try {
       await deleteRoute(deleteRouteId);
-      toast.success('Route deleted');
+      toast.success("Route deleted");
       setDeleteRouteId(null);
     } catch (error) {
       // Error toast already shown by store
@@ -395,8 +554,9 @@ function RoutesImpl() {
   };
 
   useEffect(() => {
-    (window as typeof window & { __openRouteSheet?: () => void }).__openRouteSheet =
-      openRouteSheet;
+    (
+      window as typeof window & { __openRouteSheet?: () => void }
+    ).__openRouteSheet = openRouteSheet;
 
     return () => {
       delete (window as typeof window & { __openRouteSheet?: () => void })
@@ -413,7 +573,7 @@ function RoutesImpl() {
     }
     const doctors = getDoctorsInRoute(state, routeId);
     const info = getRouteStatusInfo(route);
-    const isRouteCompleted = info.status !== 'active';
+    const isRouteCompleted = info.status !== "active";
 
     const handleDoctorDragEnd = async (event: DragEndEvent) => {
       const { active, over } = event;
@@ -430,18 +590,19 @@ function RoutesImpl() {
     };
 
     return (
-
-
       <div
         className="flex min-h-0 flex-col"
-        style={{ height: 'calc(100dvh - 13rem)' }}
+        style={{ height: "calc(100dvh - 13rem)" }}
       >
         {/* Fixed Header */}
-        <div className="shrink-0 space-y-4 pb-4">
+        <div className="shrink-0 space-y-3 pb-4">
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setSelectedRoute(null)}
+              onClick={() => {
+                setSelectedRoute(null);
+                setIsReorderMode(false);
+              }}
               className="h-9 w-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors shrink-0"
               aria-label="Back to routes"
             >
@@ -457,22 +618,58 @@ function RoutesImpl() {
             </div>
           </div>
 
+          {/* Reorder Mode Banner */}
+          {isReorderMode && (
+            <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-lg px-3 py-2.5 flex items-center gap-2">
+              <GripVertical className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <p className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
+                Drag doctors to change their order
+              </p>
+            </div>
+          )}
+
+          {/* Doctors Header with Reorder Button */}
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Doctors ({doctors.length})
             </h2>
+            {doctors.length > 1 && (
+              <button
+                type="button"
+                onClick={toggleReorderMode}
+                className={cn(
+                  "h-8 px-3 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all shrink-0",
+                  isReorderMode
+                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700",
+                )}
+                aria-label={
+                  isReorderMode ? "Exit reorder mode" : "Enter reorder mode"
+                }
+              >
+                {isReorderMode ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Done
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpDown className="h-3.5 w-3.5" />
+                    Reorder
+                  </>
+                )}
+              </button>
+            )}
           </div>
-
         </div>
 
         {/* Scrollable Doctor List */}
         <div className="min-h-0 flex-1 -mx-4">
-          <div 
+          <div
             className="card-clean h-full overflow-y-auto overscroll-contain mx-4"
             style={{
-              WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-y',
-              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: "touch",
+              overscrollBehavior: "contain",
             }}
           >
             {doctors.length === 0 ? (
@@ -480,8 +677,15 @@ function RoutesImpl() {
                 No doctors in this route yet.
               </div>
             ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDoctorDragEnd}>
-                <SortableContext items={doctors.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDoctorDragEnd}
+              >
+                <SortableContext
+                  items={doctors.map((d) => d.id)}
+                  strategy={verticalListSortingStrategy}
+                >
                   <div>
                     {doctors.map((d, idx) => (
                       <SortableRouteDoctorItem
@@ -489,10 +693,11 @@ function RoutesImpl() {
                         doctor={d}
                         index={idx}
                         isRouteCompleted={isRouteCompleted}
+                        isReorderMode={isReorderMode}
                         onRemove={async () => {
                           try {
                             await removeDoctorFromRoute(routeId, d.id);
-                            toast.success('Doctor removed from route');
+                            toast.success("Doctor removed from route");
                           } catch (error) {
                             // Error toast already shown by store
                           }
@@ -513,12 +718,13 @@ function RoutesImpl() {
           initialLocation={editingRoute?.location}
           locations={allLocations}
           getDoctorCount={(location) =>
-            state.doctors.filter((doctor) => doctor.location === location).length
+            state.doctors.filter((doctor) => doctor.location === location)
+              .length
           }
           onSubmit={async (data) => {
             try {
               await updateRoute(editingRoute!.id, { name: data.name });
-              toast.success('Route updated');
+              toast.success("Route updated");
             } catch (error) {
               // Error toast already shown by store
             }
@@ -566,8 +772,12 @@ function RoutesImpl() {
             <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedLocation}</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{routes.length} routes</p>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+              {selectedLocation}
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+              {routes.length} routes
+            </p>
           </div>
         </div>
 
@@ -584,8 +794,15 @@ function RoutesImpl() {
           Drag the handle to reorder routes
         </p>
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleRouteDragEnd}>
-          <SortableContext items={routes.map((r) => r.id)} strategy={verticalListSortingStrategy}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleRouteDragEnd}
+        >
+          <SortableContext
+            items={routes.map((r) => r.id)}
+            strategy={verticalListSortingStrategy}
+          >
             <div className="space-y-2">
               {routes.map((route) => (
                 <SortableRouteListItem
@@ -595,12 +812,12 @@ function RoutesImpl() {
                   onComplete={async () => {
                     const info = getRouteStatusInfo(route);
                     try {
-                      if (info.status === 'active') {
+                      if (info.status === "active") {
                         await completeRoute(route.id);
-                        toast.success('Route completed');
+                        toast.success("Route completed");
                       } else {
                         await uncompleteRoute(route.id);
-                        toast.success('Route reopened');
+                        toast.success("Route reopened");
                       }
                     } catch (error) {
                       // Error toast already shown by store
@@ -625,16 +842,17 @@ function RoutesImpl() {
           initialLocation={editingRoute?.location ?? selectedLocation}
           locations={allLocations}
           getDoctorCount={(location) =>
-            state.doctors.filter((doctor) => doctor.location === location).length
+            state.doctors.filter((doctor) => doctor.location === location)
+              .length
           }
           onSubmit={async (data) => {
             try {
               if (editingRoute) {
                 await updateRoute(editingRoute.id, { name: data.name });
-                toast.success('Route updated');
+                toast.success("Route updated");
               } else {
                 await createRoute(data.location, data.name);
-                toast.success('Route created');
+                toast.success("Route created");
               }
             } catch (error) {
               // Error toast already shown by store
@@ -651,38 +869,32 @@ function RoutesImpl() {
         )}
 
         {/* Delete Route Confirmation Dialog */}
-        <Dialog open={!!deleteRouteId} onOpenChange={(open) => !open && setDeleteRouteId(null)}>
-          <DialogContent className="max-w-md">
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+        <Dialog
+          open={!!deleteRouteId}
+          onOpenChange={(open) => !open && setDeleteRouteId(null)}
+        >
+          <DialogContent className="max-w-sm p-6">
+            <div className="space-y-5">
+              <div className="text-center space-y-3">
+                <div className="mx-auto h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center">
+                  <Trash2 className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
                   Delete Route?
                 </h2>
-                <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-                  Are you sure you want to delete{' '}
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   <span className="font-bold text-slate-900 dark:text-slate-50">
-                    {state.routes.find(r => r.id === deleteRouteId)?.name}
-                  </span>
-                  ?
-                </p>
-                <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
-                  This action cannot be undone. The route and its doctor assignments will be permanently removed.
+                    {state.routes.find((r) => r.id === deleteRouteId)?.name}
+                  </span>{" "}
+                  will be permanently deleted.
                 </p>
               </div>
-              <div className="flex items-center gap-3 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setDeleteRouteId(null)}
-                  disabled={isDeleting}
-                  className="px-5 h-11 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
+              <div className="flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={handleDeleteRoute}
                   disabled={isDeleting}
-                  className="px-5 h-11 rounded-lg text-sm font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50 flex items-center gap-2 min-w-[100px] justify-center"
+                  className="w-full h-11 rounded-lg text-sm font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isDeleting ? (
                     <>
@@ -690,11 +902,16 @@ function RoutesImpl() {
                       Deleting...
                     </>
                   ) : (
-                    <>
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </>
+                    "Delete Route"
                   )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteRouteId(null)}
+                  disabled={isDeleting}
+                  className="w-full h-11 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
@@ -732,7 +949,10 @@ function RoutesImpl() {
         <div className="space-y-2">
           {locationsWithRoutes.map((loc) => {
             const locRoutes = getRoutesForLocation(state, loc);
-            const totalDoctors = locRoutes.reduce((s, r) => s + r.doctorIds.length, 0);
+            const totalDoctors = locRoutes.reduce(
+              (s, r) => s + r.doctorIds.length,
+              0,
+            );
             return (
               <button
                 key={loc}
@@ -744,9 +964,12 @@ function RoutesImpl() {
                   <MapPin className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-slate-900 dark:text-slate-50 truncate text-sm">{loc}</div>
+                  <div className="font-bold text-slate-900 dark:text-slate-50 truncate text-sm">
+                    {loc}
+                  </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
-                    {locRoutes.length} route{locRoutes.length === 1 ? '' : 's'} · {totalDoctors} doctors
+                    {locRoutes.length} route{locRoutes.length === 1 ? "" : "s"}{" "}
+                    · {totalDoctors} doctors
                   </div>
                 </div>
                 <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -773,7 +996,7 @@ function RoutesImpl() {
               await createRoute(data.location, data.name);
             }
           } catch (error) {
-            console.error('Failed to save route:', error);
+            console.error("Failed to save route:", error);
           }
         }}
       />

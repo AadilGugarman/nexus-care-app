@@ -6,6 +6,7 @@ import { AuthService } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Loader2 } from 'lucide-react';
 import { LogoutConfirmationDialog } from './LogoutConfirmationDialog';
+import { NavigationStateManager } from '@/lib/navigation';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -27,8 +28,13 @@ export function LogoutButton({
   async function handleConfirmLogout() {
     setLoading(true);
     try {
+      // Clear navigation state on manual logout
+      NavigationStateManager.clearState();
+      
       await AuthService.signOut();
-      router.push('/login');
+      
+      // Redirect to public directory (home page)
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
       alert('Failed to logout. Please try again.');
