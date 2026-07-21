@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService, useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,11 @@ import { Label } from '@/components/ui/label';
 import { LogIn, Loader2 } from 'lucide-react';
 import { NavigationStateManager } from '@/lib/navigation';
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, role, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

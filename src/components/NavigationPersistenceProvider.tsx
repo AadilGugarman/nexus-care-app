@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { NavigationStateManager } from '@/lib/navigation';
 
@@ -16,7 +16,7 @@ import { NavigationStateManager } from '@/lib/navigation';
  * - Handles page refresh
  * - Works silently in the background
  */
-export function NavigationPersistenceProvider({ children }: { children: React.ReactNode }) {
+function NavigationTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -42,5 +42,16 @@ export function NavigationPersistenceProvider({ children }: { children: React.Re
     }
   }, [pathname, searchParams]);
 
-  return <>{children}</>;
+  return null;
+}
+
+export function NavigationPersistenceProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <NavigationTracker />
+      </Suspense>
+      {children}
+    </>
+  );
 }

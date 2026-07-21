@@ -7,6 +7,9 @@ import { ShieldAlert, Home, ArrowLeft, Crown, Briefcase } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 function AccessDeniedContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

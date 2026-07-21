@@ -18,6 +18,9 @@ import {
   type RouteAnalytics,
 } from "@/lib/supabase/services";
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 export default function AdminAnalyticsPage() {
   const [systemStats, setSystemStats] = useState<SystemStatistics | null>(null);
   const [mrStats, setMRStats] = useState<MRStatistics[]>([]);
